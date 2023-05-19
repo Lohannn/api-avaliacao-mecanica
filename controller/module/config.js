@@ -7,7 +7,7 @@
 
 /***************************************** MENSAGENS DE ERRO *****************************************/
 
-const ERROR_REQUIRED_FIELDS = {status: '400', message: 'Campos obrigatórios não foram preenchidos.'}
+const ERROR_REQUIRED_FIELDS = {status: '400', message: 'Campos obrigatórios não foram preenchidos ou foram preenchidos incorretamente.'}
 const ERROR_INVALID_ID = {status: '400', message: 'O ID informado não é válido ou não foi encaminhado.'}
 const ERROR_NOT_FOUND = {status: '404', message: 'O Item não foi encontrado.'}
 const ERROR_INVALID_CONTENT_TYPE = {status: '415', message: 'O tipo de mídia Content-Type da solicitação não é compatível com o servidor. Tipo Aceito: [application/json]'}
