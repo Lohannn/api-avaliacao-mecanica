@@ -25,7 +25,7 @@ const getAlunos = async function () {
         dadosAlunosJSON.alunos = dadosAluno
         return dadosAlunosJSON
     } else {
-        return messages.ERROR_INTERNAL_SERVER
+        return messages.ERROR_NOT_FOUND
     }
 }
 
@@ -42,7 +42,7 @@ const getAlunoByNome = async function (nomeDoAluno) {
         dadosAlunosJSON.alunos = dadosAluno
         return dadosAlunosJSON
     } else {
-        return messages.ERROR_INTERNAL_SERVER
+        return messages.ERROR_NOT_FOUND
     }
 }
 
@@ -61,7 +61,7 @@ const getAlunoByRm = async function (matriculaDoAluno) {
             dadosAlunosJSON.alunos = dadosAluno
             return dadosAlunosJSON
         } else {
-            return messages.ERROR_INTERNAL_SERVER
+            return messages.ERROR_NOT_FOUND
         }
     }
 }
@@ -81,7 +81,7 @@ const getAlunoByNameAndRm = async function (nomeDoAluno, matriculaDoAluno) {
             dadosAlunosJSON.alunos = dadosAluno
             return dadosAlunosJSON
         } else {
-            return messages.ERROR_INTERNAL_SERVER
+            return messages.ERROR_NOT_FOUND
         }
     }
 }
@@ -102,7 +102,7 @@ const getAlunoByID = async function (id) {
             dadosAlunoJson.aluno = dadosAluno
             return dadosAlunoJson
         } else {
-            return messages.ERROR_INTERNAL_SERVER
+            return messages.ERROR_NOT_FOUND
         }
     }
 }
@@ -208,6 +208,25 @@ const deletarAluno = async function (id) {
 
 }
 
+const getAlunoByRmAndSenha = async function(rm, senha) {
+    if (rm == '' ||   rm == undefined || senha == '' || senha == undefined) {
+        return messages.ERROR_REQUIRED_FIELDS
+    } else {
+        let dadosAlunoJson = {};
+
+        let dadosAluno = await alunoDAO.selectAlunoByRmAndSenha(rm, senha)
+
+        if (dadosAluno) {
+            //criando um JSon com o atributo alunos, para encaminhar um array de alunos
+            dadosAlunoJson.status = messages.SUCCESS_REQUEST.status
+            dadosAlunoJson.aluno = dadosAluno
+            return dadosAlunoJson
+        } else {
+            return messages.ERROR_NOT_FOUND
+        }
+    }
+}
+
 
 module.exports = {
     getAlunos,
@@ -217,5 +236,6 @@ module.exports = {
     inserirNovoAluno,
     atualizarAluno,
     getAlunoByNameAndRm,
-    deletarAluno
+    deletarAluno,
+    getAlunoByRmAndSenha
 }

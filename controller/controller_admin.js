@@ -26,6 +26,27 @@ const updateSenha = async function (senhaNova){
     }
 }
 
+const getAdmBySenha = async function(senhaNova){
+    if (senhaNova == '' ||   senhaNova == undefined) {
+        return messages.ERROR_REQUIRED_FIELDS
+    } else {
+
+        let dadosAdminJson = {};
+
+        let dadosAdmin = await adminDAO.selectAdmBySenha(senhaNova)
+
+        if (dadosAdmin) {
+            //criando um JSon com o atributo alunos, para encaminhar um array de alunos
+            dadosAdminJson.status = messages.SUCCESS_REQUEST.status
+            dadosAdminJson.administrador = dadosAdmin
+            return dadosAdminJson
+        } else {
+            return messages.ERROR_NOT_FOUND
+        }
+    }
+}
+
 module.exports = {
-    updateSenha
+    updateSenha,
+    getAdmBySenha
 }

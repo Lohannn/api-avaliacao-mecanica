@@ -24,6 +24,20 @@ const updatePassword = async function (senha){
     }
 }
 
+const selectAdmBySenha = async function (senha){
+    let sql = `select * from tbl_administrador where BINARY senha like '${senha}'` 
+
+    let rsAdm = await prisma.$queryRawUnsafe(sql)
+    console.log(rsAdm);
+
+    if(rsAdm){
+        return rsAdm
+    } else {
+        return false
+    }
+}
+
 module.exports = {
-    updatePassword
+    updatePassword,
+    selectAdmBySenha
 }

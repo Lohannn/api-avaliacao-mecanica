@@ -11,7 +11,7 @@ var { PrismaClient } = require('@prisma/client');
 //Instância da classe PrismaClient
 var prisma = new PrismaClient()
 
-const selectAllProfessores = async function (){
+const selectAllProfessores = async function () {
     let sql = 'SELECT * FROM tbl_professor'
 
     //$queryRawUnsafe(sql) - Permite interpretar uma variável como sendo um scriptSQL
@@ -26,7 +26,7 @@ const selectAllProfessores = async function (){
     }
 }
 
-const selecByIdProfessor = async function (idProfessor){
+const selecByIdProfessor = async function (idProfessor) {
     let sql = `select * from tbl_professor where id = ${idProfessor}`
 
     let rsProfessor = await prisma.$queryRawUnsafe(sql)
@@ -59,23 +59,109 @@ const insertProfessor = async function (dadosProfessor) {
     }
 }
 
-const selectLastId = async function(){
+const selectLastId = async function () {
     let sql = 'select * from tbl_professor order by id desc limit 1;'
 
     let rsProfessor = await prisma.$queryRawUnsafe(sql)
 
-    if(rsProfessor.length > 0){
+    if (rsProfessor.length > 0) {
         return rsProfessor
-    } else{
+    } else {
         return false
     }
 
     //retorna o ultimo id inserido no banco de dados
 }
 
+const selectProfessorByEmailAndSenha = async function (email, senha) {
+    let sql = `select * from tbl_professor where BINARY email like '${email}' and BINARY senha like '${senha}'`
+
+    let rsProfessor = await prisma.$queryRawUnsafe(sql)
+
+    if (rsProfessor.length > 0) {
+        return rsProfessor
+    } else {
+        return false
+    }
+}
+
+const updateProfessor = async function (dadosProfessor) {
+    let sql = `update tbl_professor set 
+            nome = '${dadosProfessor.nome}',
+            email = '${dadosProfessor.email}',
+            senha = '${dadosProfessor.senha}'
+        where id = ${dadosProfessor.id}
+    `
+
+    //Executa o scriptSQL no BD
+    let resultStatus = await prisma.$executeRawUnsafe(sql)
+
+    if (resultStatus) {
+        return true
+    } else {
+        return false
+    }
+}
+
+const deleteProfessorOnTurmas = async function (id) {
+    let sql = `delete from tbl_turma_professor where id_professor = ${id}`
+
+    let resultStatus = await prisma.$executeRawUnsafe(sql)
+
+    if (resultStatus) {
+        return true
+    } else {
+        return false
+    }
+
+}
+
+const deleteProfessorOnMaterias = async function (id) {
+    let sql = `delete from tbl_professor_materia where id_professor = ${id}`
+
+    let resultStatus = await prisma.$executeRawUnsafe(sql)
+
+    if (resultStatus) {
+        return true
+    } else {
+        return false
+    }
+
+}
+
+const deleteProfessor = async function (id) {
+
+    let deleteTurmasConnection = await deleteProfessorOnTurmas(id)
+
+    if (deleteTurmasConnection) {
+        let deleteMateriasConnection = await deleteProfessorOnMaterias(id)
+
+        if (deleteMateriasConnection) {
+            let sql = `delete from tbl_professor where id = ${id}`
+
+            let resultStatus = await prisma.$executeRawUnsafe(sql)
+
+            if (resultStatus) {
+                return true
+            } else {
+                return false
+            }
+        } else {
+            return false
+        }
+    } else {
+        return false
+    }
+
+}
+
 module.exports = {
     selectAllProfessores,
     insertProfessor,
     selecByIdProfessor,
-    selectLastId
+    selectLastId,
+    selectProfessorByEmailAndSenha,
+    selectProfessorByEmailAndSenha,
+    updateProfessor,
+    deleteProfessor
 }

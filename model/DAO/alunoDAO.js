@@ -168,6 +168,18 @@ const deleteAluno = async function (id) {
     }
 }
 
+const selectAlunoByRmAndSenha = async function (rm, senha){
+    let sql = `select * from tbl_aluno where matricula = '${rm}' and BINARY senha like '${senha}'`
+
+    let rsAluno = await prisma.$queryRawUnsafe(sql)
+
+    if (rsAluno.length > 0) {
+        return rsAluno;
+    } else {
+        return false
+    }
+}
+
 
 module.exports = {
     selectAllAlunos,
@@ -178,5 +190,6 @@ module.exports = {
     selectAlunoByNameAndRm,
     selectLastId,
     updateAluno,
-    deleteAluno
+    deleteAluno,
+    selectAlunoByRmAndSenha
 }
