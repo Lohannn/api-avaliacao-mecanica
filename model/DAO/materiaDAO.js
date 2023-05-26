@@ -122,9 +122,9 @@ const updateMateria = async function(dadosMateria){
     }
 }
 
-const deleteMateria = async function (id) {
+const deleteMateria = async function (idMateria) {
 
-    let sql = `delete from tbl_materia where id = ${id}`
+    let sql = `delete from tbl_materia where idMateria = ${idMateria}`
 
     let resultStatus = await prisma.$executeRawUnsafe(sql)
 

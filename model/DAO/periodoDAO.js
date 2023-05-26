@@ -87,9 +87,9 @@ const updatePeriodo = async function(dadosPeriodo){
     }
 }
 
-const deletePeriodo = async function (id) {
+const deletePeriodo = async function (idPeriodo) {
 
-    let sql = `delete from tbl_periodo where id = ${id}`
+    let sql = `delete from tbl_periodo where idPeriodo = ${idPeriodo}`
 
     let resultStatus = await prisma.$executeRawUnsafe(sql)
 

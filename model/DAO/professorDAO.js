@@ -103,9 +103,17 @@ const updateProfessor = async function (dadosProfessor) {
     }
 }
 
-const deleteProfessor = async function (id) {
+const deleteProfessor = async function (idProfessor) {
 
-    
+    let sql = `delete from tbl_professor where idProfessor = ${idProfessor}`
+
+    let resultStatus = await prisma.$executeRawUnsafe(sql)
+
+    if(resultStatus){
+        return true
+    }else{
+        return false
+    }
 
 }
 
