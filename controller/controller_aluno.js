@@ -9,7 +9,7 @@
 var messages = require('./module/config.js');
 
 //Import do arquivo DAO para acessar dados do aluno no BD
-let alunoDAO = require('../model/dao/alunoDAO.js')
+let alunoDAO = require('../model/DAO/alunoDAO.js')
 
 //Função que retorna todos os alunos cadastrados.
 const getAlunos = async function () {
@@ -25,7 +25,7 @@ const getAlunos = async function () {
         dadosAlunosJSON.alunos = dadosAluno
         return dadosAlunosJSON
     } else {
-        return messages.ERROR_NOT_FOUND
+        return messages.ERROR_INTERNAL_SERVER
     }
 }
 

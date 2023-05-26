@@ -103,55 +103,9 @@ const updateProfessor = async function (dadosProfessor) {
     }
 }
 
-const deleteProfessorOnTurmas = async function (id) {
-    let sql = `delete from tbl_turma_professor where id_professor = ${id}`
-
-    let resultStatus = await prisma.$executeRawUnsafe(sql)
-
-    if (resultStatus) {
-        return true
-    } else {
-        return false
-    }
-
-}
-
-const deleteProfessorOnMaterias = async function (id) {
-    let sql = `delete from tbl_professor_materia where id_professor = ${id}`
-
-    let resultStatus = await prisma.$executeRawUnsafe(sql)
-
-    if (resultStatus) {
-        return true
-    } else {
-        return false
-    }
-
-}
-
 const deleteProfessor = async function (id) {
 
-    let deleteTurmasConnection = await deleteProfessorOnTurmas(id)
-
-    if (deleteTurmasConnection) {
-        let deleteMateriasConnection = await deleteProfessorOnMaterias(id)
-
-        if (deleteMateriasConnection) {
-            let sql = `delete from tbl_professor where id = ${id}`
-
-            let resultStatus = await prisma.$executeRawUnsafe(sql)
-
-            if (resultStatus) {
-                return true
-            } else {
-                return false
-            }
-        } else {
-            return false
-        }
-    } else {
-        return false
-    }
+    
 
 }
 
