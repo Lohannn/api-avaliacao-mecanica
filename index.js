@@ -14,6 +14,7 @@ var controllerMateria = require('./controller/controller_materia.js')
 var controllerSemestre = require('./controller/controller_semestre.js')
 var controllerPeriodo = require('./controller/controller_periodo.js')
 var controllerAvaliacao = require('./controller/controller_avaliacao.js')
+var controllerCriterio = require('./controller/controller_criterio.js')
 
 //Import do arquivo que possibilitará usar as mensagens de erro.
 var messages = require('./controller/module/config.js');
@@ -761,27 +762,86 @@ app.delete('/v1/senai/avaliacao/:id', cors(), async function (request, response)
 
 //Endpoint para retornar todos os Critérios.
 app.get('/v1/senai/criterios', cors(), async (request, response) => {
+    let id_avaliacao = request.query.id_avaliacao;
 
+    if (id_avaliacao != undefined) {
+        let dadosCriterio = await cont
+
+        response.status(dadosCriterio.status)
+        response.json(dadosCriterio)
+    } else {
+        let dadosCriterio = await controllerCriterio.getCriterios()
+
+        response.status(dadosCriterio.status)
+        response.json(dadosCriterio)
+    }
 })
 
 //Endpoint para retornar um Critério pelo ID.
 app.get('/v1/senai/criterio/:id', cors(), async (request, response) => {
+    let id = request.params.id
+    let dadosCriterio = await controllerCriterio.getCriterioByID(id)
 
+    response.status(dadosCriterio.status)
+    response.json(dadosCriterio)
 })
 
 //Endpoint para criar um Critério.
 app.post('/v1/senai/criterio', cors(), bodyParserJSON, async function (request, response) {
+    let contentType = request.headers['content-type']
 
+    //Validação para receber dados apenas no formato JSON
+    if (String(contentType).toLowerCase() == 'application/json') {
+
+        let dadosBody = request.body
+
+        let resultDadosCriterio = await controllerCriterio.inserirNovoCriterio(dadosBody)
+
+        response.status(resultDadosCriterio.status)
+        response.json(resultDadosCriterio)
+    } else {
+        response.status(messages.ERROR_INVALID_CONTENT_TYPE.status)
+        response.json(messages.ERROR_INVALID_CONTENT_TYPE.message)
+    }
 })
 
 //Endpoint para atualizar um Critério pelo ID.
 app.put('/v1/senai/criterio/:id', cors(), bodyParserJSON, async function (request, response) {
+    let contentType = request.headers['content-type']
 
+    //Validação para receber dados apenas no formato JSON
+    if (String(contentType).toLowerCase() == 'application/json') {
+        //Recebe o ID do aluno pelo parametro
+        let id = request.params.id;
+
+        //Recebe os dados dos aluno encaminhado no corpo da requisição
+        let dadosBody = request.body
+
+        let resultDadosCriterio = await controllerCriterio.atualizarCriterio(dadosBody, id)
+
+        response.status(resultDadosCriterio.status)
+        response.json(resultDadosCriterio)
+    } else {
+        response.status(messages.ERROR_INVALID_CONTENT_TYPE.status)
+        response.json(messages.ERROR_INVALID_CONTENT_TYPE.message)
+    }
 })
 
 //Endpoint para deletar um Critério pelo ID.
 app.delete('/v1/senai/criterio/:id', cors(), async function (request, response) {
+    let id = request.params.id;
 
+    let retornoCriterio = await controllerCriterio.getCriterioByID(id)
+
+    if (retornoCriterio.status == 404) {
+        response.status(retornoCriterio.status)
+        response.json(retornoCriterio)
+    } else {
+        let resultDadosCriterio= await controllerCriterio.deletarCriterio(id)
+
+        response.status(resultDadosCriterio.status)
+        response.json(resultDadosCriterio)
+    }
 })
 
 /*************************************************************************************

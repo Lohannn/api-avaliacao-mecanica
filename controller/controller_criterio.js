@@ -28,9 +28,9 @@ const getCriterios = async function () {
     }
 }
 
-const getCriteriosByAvaliacao = async function(id_avaliacao){
-    if(id_avaliacao == '' || id_avaliacao == undefined || id_avaliacao == null ||
-    isNaN(id_avaliacao)){
+const getCriteriosByAvaliacao = async function (id_avaliacao) {
+    if (id_avaliacao == '' || id_avaliacao == undefined || id_avaliacao == null ||
+        isNaN(id_avaliacao)) {
         return messages.ERROR_INVALID_ID
     } else {
         let dadosCriterioJson = {};
@@ -46,7 +46,7 @@ const getCriteriosByAvaliacao = async function(id_avaliacao){
             return messages.ERROR_NOT_FOUND
         }
     }
-    
+
 }
 
 const getCriterioByID = async function (id) {
@@ -69,13 +69,114 @@ const getCriterioByID = async function (id) {
     }
 }
 
-const atualizarCriterio = async function(dadosCriterio, id){
-    
+const atualizarCriterio = async function (dadosCriterio, id) {
+    if (dadosCriterio.descricao == '' || dadosCriterio.descricao == undefined || dadosCriterio.descricao == null
+        || dadosCriterio.id_avaliacao == '' || dadosCriterio.id_avaliacao == undefined || dadosCriterio.id_avaliacao == null
+        || isNaN(dadosCriterio.id_avaliacao)
+    ) {
+        return messages.ERROR_REQUIRED_FIELDS
+    } else if (id == null || id == undefined || isNaN(id)) {
+        return messages.ERROR_INVALID_ID
+    } else {
+        //Adiciona o ID do aluno no JSON dos dados
+        dadosCriterio.id = id
+
+
+        let atualizacaoCriterio = await criterioDAO.selectByIdCriterio(id)
+
+        if (atualizacaoCriterio) {
+            let resultdadosCriterios = await criterioDAO.updateCriterio(dadosCriterio)
+
+            //Valida se o BD inseriu corretamente
+            if (resultdadosCriterios) {
+
+                let dadosCriterioJSon = {}
+                dadosCriterioJSon.status = messages.SUCCESS_UPDATED_ITEM.status
+                dadosCriterioJSon.message = messages.SUCCESS_UPDATED_ITEM.message
+                dadosCriterioJSon.criterio = dadosCriterio
+
+                return dadosCriterioJSon
+
+            } else {
+                return messages.ERROR_INTERNAL_SERVER
+            }
+        } else {
+            return messages.ERROR_INVALID_ID
+        }
+
+
+    }
+}
+
+const inserirNovoCriterio = async function (dadosCriterio) {
+    if (dadosCriterio.descricao == '' || dadosCriterio.descricao == undefined || dadosCriterio.descricao == null
+        || dadosCriterio.id_avaliacao == '' || dadosCriterio.id_avaliacao == undefined || dadosCriterio.id_avaliacao == null
+        || isNaN(dadosCriterio.id_avaliacao)
+    ) {
+        return messages.ERROR_REQUIRED_FIELDS
+    } else if (id == null || id == undefined || isNaN(id)) {
+        return messages.ERROR_INVALID_ID
+    } else {
+        //Adiciona o ID do aluno no JSON dos dados
+
+
+
+        let inserirCriterio = await criterioDAO.insertCriterio(dadosCriterio)
+
+        if (inserirCriterio) {
+            let resultdadosCriterios = await criterioDAO.updateCriterio(dadosCriterio)
+
+            //Valida se o BD inseriu corretamente
+            if (resultdadosCriterios) {
+
+                let novoCriterio = await criterioDAO.selectLastIdCriterio()
+
+                let dadosCriterioJSon = {}
+                dadosCriterioJSon.status = messages.SUCCESS_CREATED_ITEM.status
+                dadosCriterioJSon.aluno = novoCriterio
+
+                return dadosCriterioJSon
+
+            } else {
+                return messages.ERROR_INTERNAL_SERVER
+            }
+        } else {
+            return messages.ERROR_INVALID_ID
+        }
+
+
+    }
+}
+
+const deletarCriterio = async function(id){
+    if (id == null || id == undefined || id == '' || isNaN(id)) {
+        return messages.ERROR_INVALID_ID
+    } else {
+
+        let searchIdCriterio = await criterioDAO.selectByIdCriterio(id)
+
+        if (searchIdCriterio) {
+            let dadosCriterio = await criterioDAO.deleteCriterio(id)
+
+            if (dadosCriterio) {
+                return messages.SUCCESS_DELETED_ITEM
+            } else {
+                return messages.ERROR_INTERNAL_SERVER
+            }
+        } else{
+            return messages.ERROR_INVALID_ID
+        }
+
+
+    }
 }
 
 
 module.exports = {
     getCriterios,
     getCriteriosByAvaliacao,
-    getCriterioByID
+    getCriterioByID,
+    atualizarCriterio,
+    inserirNovoCriterio,
+    deletarCriterio
 }
