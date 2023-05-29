@@ -46,6 +46,23 @@ const getAlunoByNome = async function (nomeDoAluno) {
     }
 }
 
+const getAlunoByEmail = async function (emailDoAluno) {
+    let dadosAlunosJSON = {}
+
+    //chama a função do arquivo DAO que irá retornar todos os registros do BD
+    let dadosAluno = await alunoDAO.selectAlunoByEmail(emailDoAluno)
+
+    if (dadosAluno) {
+        //Criando um JSON com o atributo Alunos para encaminhar um Array de alunos
+        dadosAlunosJSON.status = messages.SUCCESS_REQUEST.status
+        dadosAlunosJSON.quantidade = dadosAluno.length
+        dadosAlunosJSON.alunos = dadosAluno
+        return dadosAlunosJSON
+    } else {
+        return messages.ERROR_NOT_FOUND
+    }
+}
+
 const getAlunoByRm = async function (matriculaDoAluno) {
     let dadosAlunosJSON = {}
 
@@ -237,5 +254,6 @@ module.exports = {
     atualizarAluno,
     getAlunoByNameAndRm,
     deletarAluno,
-    getAlunoByRmAndSenha
+    getAlunoByRmAndSenha,
+    getAlunoByEmail
 }

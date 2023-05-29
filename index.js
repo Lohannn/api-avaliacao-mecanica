@@ -13,6 +13,7 @@ var controllerTurma = require('./controller/controller_turma.js')
 var controllerMateria = require('./controller/controller_materia.js')
 var controllerSemestre = require('./controller/controller_semestre.js')
 var controllerPeriodo = require('./controller/controller_periodo.js')
+var controllerAvaliacao = require('./controller/controller_avaliacao.js')
 
 //Import do arquivo que possibilitará usar as mensagens de erro.
 var messages = require('./controller/module/config.js');
@@ -32,6 +33,19 @@ app.use((request, response, next) => {
     app.use(cors())
 
     next()
+})
+
+app.get('/v1/senai/recuperar', cors(), async function (request, response) {
+    let password = Math.floor(Math.random() * 10);
+    for (let index = 1; index <= 3; index++) {
+        let num = Math.floor(Math.random() * 10);
+        password += String(num);
+    }
+
+    console.log(password);
+
+    response.json(password)
+    response.status(messages.SUCCESS_REQUEST)
 })
 
 //CRUD (Create, Read, Update, Delete)
@@ -76,6 +90,7 @@ app.get('/v1/senai/alunos', cors(), async (request, response) => {
     let nomeAluno = request.query.nome
     let rmAluno = request.query.matricula
     let senhaAluno = request.query.senha
+    let emailAluno = request.query.senha
 
     if (rmAluno != undefined && nomeAluno != undefined) {
         let dadosAluno = await controllerAluno.getAlunoByNameAndRm(nomeAluno, rmAluno);
@@ -99,6 +114,11 @@ app.get('/v1/senai/alunos', cors(), async (request, response) => {
     } else if (rmAluno != undefined) {
         let dadosAluno = await controllerAluno.getAlunoByRm(rmAluno);
 
+        //Valida se existe registro
+        response.json(dadosAluno)
+        response.status(dadosAluno.status)
+    } else if (emailAluno != undefined) {
+        let dadosAluno = await controllerAluno.getAlunoByEmail(rmAluno);
 
         //Valida se existe registro
         response.json(dadosAluno)
@@ -197,6 +217,12 @@ app.get('/v1/senai/professores', cors(), async (request, response) => {
     if (emailProfessor != undefined && senhaProfessor != undefined) {
 
         let resultDadosProfessor = await controllerProfessor.getProfessorByEmailAndSenha(emailProfessor, senhaProfessor)
+
+        response.status(resultDadosProfessor.status)
+        response.json(resultDadosProfessor)
+    } else if (emailProfessor != undefined) {
+
+        let resultDadosProfessor = await controllerProfessor.getProfessorByEmail(emailProfessor)
 
         response.status(resultDadosProfessor.status)
         response.json(resultDadosProfessor)
@@ -636,26 +662,94 @@ app.delete('/v1/senai/periodo/:id', cors(), async function (request, response) {
 //Endpoint para retornar todos as Avaliações.
 app.get('/v1/senai/avaliacoes', cors(), async (request, response) => {
 
+    let nome = request.query.nome;
+    let idturma = request.query.idturma;
+
+    if (nome != undefined) {
+        let dadosAvaliacao = await controllerAvaliacao.getAvaliacaoPeloNome(nome)
+
+        response.status(dadosAvaliacao.status)
+        response.json(dadosAvaliacao)
+    } if (idturma != undefined) {
+        let dadosAvaliacao = await controllerAvaliacao.getAvaliacoesPelaTurma(idturma)
+
+        response.status(dadosAvaliacao.status)
+        response.json(dadosAvaliacao)
+    } else {
+        let dadosAvaliacao = await controllerAvaliacao.getAvaliacoes()
+
+        response.status(dadosAvaliacao.status)
+        response.json(dadosAvaliacao)
+    }
+
+
 })
 
 //Endpoint para retornar uma Avaliação pelo ID.
 app.get('/v1/senai/avaliacao/:id', cors(), async (request, response) => {
+    let id = request.params.id
+    let dadosAvaliacao = await controllerAvaliacao.getAvaliacaoPeloId(id)
 
+    response.status(dadosAvaliacao.status)
+    response.json(dadosAvaliacao)
 })
 
 //Endpoint para criar uma Avaliação.
 app.post('/v1/senai/avaliacao', cors(), bodyParserJSON, async function (request, response) {
+    let contentType = request.headers['content-type']
 
+    //Validação para receber dados apenas no formato JSON
+    if (String(contentType).toLowerCase() == 'application/json') {
+
+        let dadosBody = request.body
+
+        let resultDadosAvaliacao = await controllerAvaliacao.inserirNovaAvaliacao(dadosBody)
+
+        response.status(resultDadosAvaliacao.status)
+        response.json(resultDadosAvaliacao)
+    } else {
+        response.status(messages.ERROR_INVALID_CONTENT_TYPE.status)
+        response.json(messages.ERROR_INVALID_CONTENT_TYPE.message)
+    }
 })
 
 //Endpoint para atualizar uma Avaliação pelo ID.
 app.put('/v1/senai/avaliacao/:id', cors(), bodyParserJSON, async function (request, response) {
+    let contentType = request.headers['content-type']
 
+    //Validação para receber dados apenas no formato JSON
+    if (String(contentType).toLowerCase() == 'application/json') {
+        //Recebe o ID do aluno pelo parametro
+        let id = request.params.id;
+
+        //Recebe os dados dos aluno encaminhado no corpo da requisição
+        let dadosBody = request.body
+
+        let resultDadosAvaliacao = await controllerAvaliacao.atualizarAvaliacao(dadosBody, id)
+
+        response.status(resultDadosAvaliacao.status)
+        response.json(resultDadosAvaliacao)
+    } else {
+        response.status(messages.ERROR_INVALID_CONTENT_TYPE.status)
+        response.json(messages.ERROR_INVALID_CONTENT_TYPE.message)
+    }
 })
 
 //Endpoint para deletar uma Avaliação pelo ID.
 app.delete('/v1/senai/avaliacao/:id', cors(), async function (request, response) {
+    let id = request.params.id;
 
+    let retornoAvaliacao = await controllerAvaliacao.getAvaliacaoPeloId(id)
+
+    if (retornoAvaliacao.status == 404) {
+        response.status(retornoAvaliacao.status)
+        response.json(retornoAvaliacao)
+    } else {
+        let resultDadosAvaliacao = await controllerAvaliacao.deletarAvaliacao(id)
+
+        response.status(resultDadosAvaliacao.status)
+        response.json(resultDadosAvaliacao)
+    }
 })
 
 /*************************************************************************************

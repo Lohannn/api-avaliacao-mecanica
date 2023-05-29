@@ -47,6 +47,24 @@ const selectAlunoByName = async function (nomeAluno) {
 
 }
 
+const selectAlunoByEmail = async function (emailAluno) {
+
+    //scriptSQL para buscar todos os itens do BD
+    let sql = `SELECT * FROM tbl_aluno where BINARY email = '${nomeAluno}'`
+
+    //$queryRawUnsafe(sql) - Permite interpretar uma variável como sendo um scriptSQL
+    //$queryRaw('SELECT * FROM tbl_aluno') - Executa diretamente o script dentro do método
+    let rsAluno = await prisma.$queryRawUnsafe(sql)
+
+    //Valida se o BD retornou algum registro
+    if (rsAluno.length > 0) {
+        return rsAluno
+    } else {
+        return false
+    }
+
+}
+
 const selectAlunoByRm = async function (rmAluno) {
 
     //scriptSQL para buscar todos os itens do BD
@@ -191,5 +209,6 @@ module.exports = {
     selectLastId,
     updateAluno,
     deleteAluno,
-    selectAlunoByRmAndSenha
+    selectAlunoByRmAndSenha,
+    selectAlunoByEmail
 }

@@ -95,6 +95,26 @@ const getProfessorByEmailAndSenha = async function(email, senha){
     }
 }
 
+const getProfessorByEmail = async function(email){
+    if (email == '' ||  email == undefined) {
+        return messages.ERROR_INVALID_ID
+    } else {
+
+        let dadosProfessorJson = {};
+
+        let dadosProfessor = await professorDAO.selectProfessorByEmail(email)
+
+        if (dadosProfessor) {
+            //criando um JSon com o atributo alunos, para encaminhar um array de alunos
+            dadosProfessorJson.status = messages.SUCCESS_REQUEST.status
+            dadosProfessorJson.professor = dadosProfessor
+            return dadosProfessorJson
+        } else {
+            return messages.ERROR_NOT_FOUND
+        }
+    }
+}
+
 const atualizarProfessor = async function(dadosProfessor, id) {
      //Validaçao de campos obrigatorios e limite de cracteres
      if ( dadosProfessor.nome == '' || dadosProfessor.nome == undefined || dadosProfessor.nome.length > 100 ||
@@ -162,5 +182,6 @@ module.exports = {
     inserirNovoProfessor,
     getProfessorByEmailAndSenha,
     atualizarProfessor,
-    deletarProfessor
+    deletarProfessor,
+    getProfessorByEmail
 }

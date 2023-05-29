@@ -60,7 +60,7 @@ const insertProfessor = async function (dadosProfessor) {
 }
 
 const selectLastId = async function () {
-    let sql = 'select * from tbl_professor order by id desc limit 1;'
+    let sql = 'select * from tbl_professor order by idProfessor desc limit 1;'
 
     let rsProfessor = await prisma.$queryRawUnsafe(sql)
 
@@ -75,6 +75,18 @@ const selectLastId = async function () {
 
 const selectProfessorByEmailAndSenha = async function (email, senha) {
     let sql = `select * from tbl_professor where BINARY email like '${email}' and BINARY senha like '${senha}'`
+
+    let rsProfessor = await prisma.$queryRawUnsafe(sql)
+
+    if (rsProfessor.length > 0) {
+        return rsProfessor
+    } else {
+        return false
+    }
+}
+
+const selectProfessorByEmail = async function (email, senha) {
+    let sql = `select * from tbl_professor where BINARY email like '${email}'`
 
     let rsProfessor = await prisma.$queryRawUnsafe(sql)
 
@@ -125,5 +137,6 @@ module.exports = {
     selectProfessorByEmailAndSenha,
     selectProfessorByEmailAndSenha,
     updateProfessor,
-    deleteProfessor
+    deleteProfessor,
+    selectProfessorByEmail
 }
