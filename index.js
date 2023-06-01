@@ -15,6 +15,8 @@ var controllerSemestre = require('./controller/controller_semestre.js')
 var controllerPeriodo = require('./controller/controller_periodo.js')
 var controllerAvaliacao = require('./controller/controller_avaliacao.js')
 var controllerCriterio = require('./controller/controller_criterio.js')
+var controllerVerificacao = require('./controller/controller_verificacao.js')
+var controllerResultado = require('./controller/controller_resultado.js')
 
 //Import do arquivo que possibilitará usar as mensagens de erro.
 var messages = require('./controller/module/config.js');
@@ -42,8 +44,6 @@ app.get('/v1/senai/recuperar', cors(), async function (request, response) {
         let num = Math.floor(Math.random() * 10);
         password += String(num);
     }
-
-    console.log(password);
 
     response.json(password)
     response.status(messages.SUCCESS_REQUEST)
@@ -91,7 +91,7 @@ app.get('/v1/senai/alunos', cors(), async (request, response) => {
     let nomeAluno = request.query.nome
     let rmAluno = request.query.matricula
     let senhaAluno = request.query.senha
-    let emailAluno = request.query.senha
+    let emailAluno = request.query.email
 
     if (rmAluno != undefined && nomeAluno != undefined) {
         let dadosAluno = await controllerAluno.getAlunoByNameAndRm(nomeAluno, rmAluno);
@@ -332,6 +332,10 @@ app.get('/v1/senai/turma/:id', cors(), async (request, response) => {
 
 //Endpoint para criar uma turma.
 app.post('/v1/senai/turma', cors(), bodyParserJSON, async function (request, response) {
+
+    let professor = request.query.id_professor;
+    let periodo = request.query.id_periodo;
+
     let contentType = request.headers['content-type']
 
     //Validação para receber dados apenas no formato JSON
@@ -339,7 +343,7 @@ app.post('/v1/senai/turma', cors(), bodyParserJSON, async function (request, res
 
         let dadosBody = request.body
 
-        let resultDadosTurma = await controllerTurma.inserirNovaTurma(dadosBody)
+        let resultDadosTurma = await controllerTurma.inserirNovaTurma(dadosBody, periodo, professor)
 
         response.status(resultDadosTurma.status)
         response.json(resultDadosTurma)
@@ -762,19 +766,10 @@ app.delete('/v1/senai/avaliacao/:id', cors(), async function (request, response)
 
 //Endpoint para retornar todos os Critérios.
 app.get('/v1/senai/criterios', cors(), async (request, response) => {
-    let id_avaliacao = request.query.id_avaliacao;
+    let dadosCriterio = await controllerCriterio.getCriterios()
 
-    if (id_avaliacao != undefined) {
-        let dadosCriterio = await cont
-
-        response.status(dadosCriterio.status)
-        response.json(dadosCriterio)
-    } else {
-        let dadosCriterio = await controllerCriterio.getCriterios()
-
-        response.status(dadosCriterio.status)
-        response.json(dadosCriterio)
-    }
+    response.status(dadosCriterio.status)
+    response.json(dadosCriterio)
 })
 
 //Endpoint para retornar um Critério pelo ID.
@@ -837,7 +832,7 @@ app.delete('/v1/senai/criterio/:id', cors(), async function (request, response) 
         response.status(retornoCriterio.status)
         response.json(retornoCriterio)
     } else {
-        let resultDadosCriterio= await controllerCriterio.deletarCriterio(id)
+        let resultDadosCriterio = await controllerCriterio.deletarCriterio(id)
 
         response.status(resultDadosCriterio.status)
         response.json(resultDadosCriterio)
@@ -851,29 +846,54 @@ app.delete('/v1/senai/criterio/:id', cors(), async function (request, response) 
  * Versão: 1.0
  *************************************************************************************/
 
-//Endpoint para retornar todos as Verificações.
-app.get('/v1/senai/verificacoes', cors(), async (request, response) => {
-
-})
-
 //Endpoint para retornar uma Verificação pelo ID.
 app.get('/v1/senai/verificacao/:id', cors(), async (request, response) => {
+    let id = request.params.id
+    let dadosVerificacao = await controllerVerificacao.getVerificacaoById(id)
 
+    response.status(dadosVerificacao.status)
+    response.json(dadosVerificacao)
 })
 
 //Endpoint para criar uma Verificação.
 app.post('/v1/senai/verificacao', cors(), bodyParserJSON, async function (request, response) {
+    let contentType = request.headers['content-type']
 
+    //Validação para receber dados apenas no formato JSON
+    if (String(contentType).toLowerCase() == 'application/json') {
+
+        let dadosBody = request.body
+
+        let resultDadosVerificacao = await controllerVerificacao.inserirNovaVerificacao(dadosBody)
+
+        response.status(resultDadosVerificacao.status)
+        response.json(resultDadosVerificacao)
+    } else {
+        response.status(messages.ERROR_INVALID_CONTENT_TYPE.status)
+        response.json(messages.ERROR_INVALID_CONTENT_TYPE.message)
+    }
 })
 
 //Endpoint para atualizar uma Verificação pelo ID.
 app.put('/v1/senai/verificacao/:id', cors(), bodyParserJSON, async function (request, response) {
+    let contentType = request.headers['content-type']
 
-})
+    //Validação para receber dados apenas no formato JSON
+    if (String(contentType).toLowerCase() == 'application/json') {
+        //Recebe o ID do aluno pelo parametro
+        let id = request.params.id;
 
-//Endpoint para deletar uma Verificação pelo ID.
-app.delete('/v1/senai/verificacao/:id', cors(), async function (request, response) {
+        //Recebe os dados dos aluno encaminhado no corpo da requisição
+        let dadosBody = request.body
 
+        let resultDadosVerificacao = await controllerVerificacao.atualizarVerificacao(dadosBody, id)
+
+        response.status(resultDadosVerificacao.status)
+        response.json(resultDadosVerificacao)
+    } else {
+        response.status(messages.ERROR_INVALID_CONTENT_TYPE.status)
+        response.json(messages.ERROR_INVALID_CONTENT_TYPE.message)
+    }
 })
 
 /*************************************************************************************
@@ -883,29 +903,54 @@ app.delete('/v1/senai/verificacao/:id', cors(), async function (request, respons
  * Versão: 1.0
  *************************************************************************************/
 
-//Endpoint para retornar todos os Resultados.
-app.get('/v1/senai/resultados', cors(), async (request, response) => {
-
-})
-
 //Endpoint para retornar um Resultado pelo ID.
 app.get('/v1/senai/resultado/:id', cors(), async (request, response) => {
+    let id = request.params.id
+    let dadosResultado = await controllerResultado.getResultadoById(id)
 
+    response.status(dadosResultado.status)
+    response.json(dadosResultado)
 })
 
 //Endpoint para criar um Resultado.
 app.post('/v1/senai/resultado', cors(), bodyParserJSON, async function (request, response) {
+    let contentType = request.headers['content-type']
 
+    //Validação para receber dados apenas no formato JSON
+    if (String(contentType).toLowerCase() == 'application/json') {
+
+        let dadosBody = request.body
+
+        let resultDadosResultado = await controllerResultado.inserirNovaResultado(dadosBody)
+
+        response.status(resultDadosResultado.status)
+        response.json(resultDadosResultado)
+    } else {
+        response.status(messages.ERROR_INVALID_CONTENT_TYPE.status)
+        response.json(messages.ERROR_INVALID_CONTENT_TYPE.message)
+    }
 })
 
 //Endpoint para atualizar um Resultado pelo ID.
 app.put('/v1/senai/resultado/:id', cors(), bodyParserJSON, async function (request, response) {
+    let contentType = request.headers['content-type']
 
-})
+    //Validação para receber dados apenas no formato JSON
+    if (String(contentType).toLowerCase() == 'application/json') {
+        //Recebe o ID do aluno pelo parametro
+        let id = request.params.id;
 
-//Endpoint para deletar um Resultado pelo ID.
-app.delete('/v1/senai/resultado/:id', cors(), async function (request, response) {
+        //Recebe os dados dos aluno encaminhado no corpo da requisição
+        let dadosBody = request.body
 
+        let resultDadosVerificacao = await controllerVerificacao.atualizarVerificacao(dadosBody, id)
+
+        response.status(resultDadosVerificacao.status)
+        response.json(resultDadosVerificacao)
+    } else {
+        response.status(messages.ERROR_INVALID_CONTENT_TYPE.status)
+        response.json(messages.ERROR_INVALID_CONTENT_TYPE.message)
+    }
 })
 
 /*************************************************************************************
@@ -914,11 +959,6 @@ app.delete('/v1/senai/resultado/:id', cors(), async function (request, response)
  * Data: 18/05/2023
  * Versão: 1.0
  *************************************************************************************/
-
-//Endpoint para retornar todos os Registros.
-app.get('/v1/senai/registros', cors(), async (request, response) => {
-
-})
 
 //Endpoint para retornar um Registro pelo ID.
 app.get('/v1/senai/registro/:id', cors(), async (request, response) => {
@@ -932,11 +972,6 @@ app.post('/v1/senai/registro', cors(), bodyParserJSON, async function (request, 
 
 //Endpoint para atualizar um Registro pelo ID.
 app.put('/v1/senai/registro/:id', cors(), bodyParserJSON, async function (request, response) {
-
-})
-
-//Endpoint para deletar um Registro pelo ID.
-app.delete('/v1/senai/registro/:id', cors(), async function (request, response) {
 
 })
 

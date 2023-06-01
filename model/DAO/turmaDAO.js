@@ -8,6 +8,8 @@
 //Import da biblioteca do prisma client
 var { PrismaClient } = require('@prisma/client');
 
+var controllerProfessor = require('./professorDAO.js')
+
 //Instância da classe PrismaClient
 var prisma = new PrismaClient()
 
@@ -29,7 +31,7 @@ const selectAllTurmas = async function () {
 
 }
 
-const insertTurma = async function (dadosTurma) {
+const insertTurma = async function (dadosTurma, id_periodo, id_professor) {
     let sql = `insert into tbl_turma (
         nome,
         sigla,
@@ -44,13 +46,45 @@ const insertTurma = async function (dadosTurma) {
     let resultStatus = await prisma.$executeRawUnsafe(sql)
 
     if (resultStatus) {
+
+        var tblPeriodoTurmaLastId = selectTblPeriodoTurmaLastId()
+
+        let passIdPeriodo = `update tbl_periodo_turma set id_periodo = ${id_periodo} where id = ${tblPeriodoTurmaLastId}`
+
+        let executeSecondScript = async function(){await prisma.$executeRawUnsafe(passIdPeriodo)}
+
+        executeSecondScript()
+
+        var getProfessorByid = controllerProfessor.selecByIdProfessor(id_professor)
+
+        let passIdProfessor = `update tbl_turma_professor set id_professor = ${id_professor} from tbl_turma_professor inner join tbl_professor on tbl_professor.id = tbl_turma_professor.id_professor where idProfessor = ${getProfessorByid.id}`
+
+        let executeThirdScript = async function(){await prisma.$executeRawUnsafe(passIdProfessor)}
+
+        executeThirdScript()
+
+
         return true
+
     } else {
         return false
     }
 }
 
-const selectTurmaById = async function(Id){
+const selectTblPeriodoTurmaLastId = async function () {
+    let sql = 'select * from tbl_periodo_turma order by id desc limit 1;'
+
+    let rsPeriodoTurma = await prisma.$queryRawUnsafe(sql)
+
+    if (rsPeriodoTurma.length > 0) {
+        return rsPeriodoTurma
+    } else {
+        return false
+    }
+}
+
+
+const selectTurmaById = async function (Id) {
     let sql = `select * from tbl_turma where id = ${Id}`
 
     let rsTurma = await prisma.$queryRawUnsafe(sql)
@@ -62,21 +96,21 @@ const selectTurmaById = async function(Id){
     }
 }
 
-const selectLastId = async function(){
+const selectLastId = async function () {
     let sql = 'select * from tbl_turma order by id desc limit 1;'
 
     let rsTurma = await prisma.$queryRawUnsafe(sql)
 
-    if(rsTurma.length > 0){
+    if (rsTurma.length > 0) {
         return rsTurma
-    } else{
+    } else {
         return false
     }
 
     //retorna o ultimo id inserido no banco de dados
 }
 
-const updateTurma = async function(dadosTurma){
+const updateTurma = async function (dadosTurma) {
     let sql = `update tbl_turma set 
             nome = '${dadosTurma.nome}',
             sigla = '${dadosTurma.sigla}',
@@ -87,21 +121,21 @@ const updateTurma = async function(dadosTurma){
     //Executa o scriptSQL no BD
     let resultStatus = await prisma.$executeRawUnsafe(sql)
 
-    if(resultStatus){
+    if (resultStatus) {
         return true
-    }else{
+    } else {
         return false
     }
 }
 
-const deleteTurma = async function(id){
+const deleteTurma = async function (id) {
     let sql = `delete from tbl_turma where id = ${id}`
 
     let resultStatus = await prisma.$executeRawUnsafe(sql)
 
-    if(resultStatus){
+    if (resultStatus) {
         return true
-    }else{
+    } else {
         return false
     }
 }

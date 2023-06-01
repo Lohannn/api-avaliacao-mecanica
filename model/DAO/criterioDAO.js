@@ -14,7 +14,7 @@ var prisma = new PrismaClient()
 const selectAllCriterios = async function () {
 
     //scriptSQL para buscar todos os itens do BD
-    let sql = `select tbl_criterio.descricao as criterio , tbl_criterio.observacao, tbl_avaliacao.nome as tarefa, tbl_avaliacao.duracao, tbl_avaliacao.somativa
+    let sql = `select tbl_criterio.id as id, tbl_criterio.descricao as criterio , tbl_criterio.observacao, tbl_avaliacao.nome as tarefa, tbl_avaliacao.duracao, tbl_avaliacao.somativa
     from tbl_criterio
         inner join tbl_avaliacao
             on tbl_criterio.id_avaliacao = tbl_avaliacao.idAvaliacao;`

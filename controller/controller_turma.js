@@ -48,7 +48,7 @@ const getTurmaById = async function (id) {
     }
 }
 
-const inserirNovaTurma = async function (dadosTurma) {
+const inserirNovaTurma = async function (dadosTurma, idProfessor, idPeriodo) {
     //Validaçao de campos obrigatorios e limite de cracteres
     if (dadosTurma.nome == '' || dadosTurma.nome == undefined || dadosTurma.nome.length > 100
         || dadosTurma.sigla == '' || dadosTurma.sigla == undefined || dadosTurma.sigla.length > 5
@@ -57,7 +57,7 @@ const inserirNovaTurma = async function (dadosTurma) {
         return messages.ERROR_REQUIRED_FIELDS
     } else {
         //Envia os dados para a model inserir no Banco de Dados
-        let resultdadosTurma = await turmaDAO.insertTurma(dadosTurma)
+        let resultdadosTurma = await turmaDAO.insertTurma(dadosTurma, idPeriodo, idProfessor)
 
         if (resultdadosTurma) {
 

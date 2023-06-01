@@ -27,7 +27,7 @@ const selectAllProfessores = async function () {
 }
 
 const selecByIdProfessor = async function (idProfessor) {
-    let sql = `select * from tbl_professor where id = ${idProfessor}`
+    let sql = `select * from tbl_professor where idProfessor = ${idProfessor}`
 
     let rsProfessor = await prisma.$queryRawUnsafe(sql)
 
