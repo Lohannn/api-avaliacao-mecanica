@@ -75,8 +75,8 @@ const getProfessorByID = async function (id) {
     }
 }
 
-const getProfessorByEmailAndSenha = async function(email, senha){
-    if (email == '' ||  email == undefined || senha == '' || senha == undefined) {
+const getProfessorByEmailAndSenha = async function (email, senha) {
+    if (email == '' || email == undefined || senha == '' || senha == undefined) {
         return messages.ERROR_INVALID_ID
     } else {
 
@@ -95,8 +95,8 @@ const getProfessorByEmailAndSenha = async function(email, senha){
     }
 }
 
-const getProfessorByEmail = async function(email){
-    if (email == '' ||  email == undefined) {
+const getProfessorByEmail = async function (email) {
+    if (email == '' || email == undefined) {
         return messages.ERROR_INVALID_ID
     } else {
 
@@ -115,45 +115,45 @@ const getProfessorByEmail = async function(email){
     }
 }
 
-const atualizarProfessor = async function(dadosProfessor, id) {
-     //Validaçao de campos obrigatorios e limite de cracteres
-     if ( dadosProfessor.nome == '' || dadosProfessor.nome == undefined || dadosProfessor.nome.length > 100 ||
-     dadosProfessor.email == '', dadosProfessor.email == undefined || dadosProfessor.email.length > 255 ||
-     dadosProfessor.senha == '' || dadosProfessor.senha == undefined || dadosProfessor.senha.length > 20
- ) {
-     return messages.ERROR_REQUIRED_FIELDS
- } else if (id == null || id == undefined || isNaN(id)) {
-     return messages.ERROR_INVALID_ID
- } else {
-     //Adiciona o ID do aluno no JSON dos dados
-     dadosProfessor.id = id
+const atualizarProfessor = async function (dadosProfessor, id) {
+    //Validaçao de campos obrigatorios e limite de cracteres
+    if (dadosProfessor.nome == '' || dadosProfessor.nome == undefined || dadosProfessor.nome.length > 100 ||
+        dadosProfessor.email == '', dadosProfessor.email == undefined || dadosProfessor.email.length > 255 ||
+        dadosProfessor.senha == '' || dadosProfessor.senha == undefined || dadosProfessor.senha.length > 20
+    ) {
+        return messages.ERROR_REQUIRED_FIELDS
+    } else if (id == null || id == undefined || isNaN(id)) {
+        return messages.ERROR_INVALID_ID
+    } else {
+        //Adiciona o ID do aluno no JSON dos dados
+        dadosProfessor.id = id
 
 
-     let atualizacaoProfessor = await professorDAO.selecByIdProfessor(id)
+        let atualizacaoProfessor = await professorDAO.selecByIdProfessor(id)
 
-     if (atualizacaoProfessor) {
-         let resultDadosProfessor = await professorDAO.updateProfessor(dadosProfessor)
+        if (atualizacaoProfessor) {
+            let resultDadosProfessor = await professorDAO.updateProfessor(dadosProfessor)
 
-         //Valida se o BD inseriu corretamente
-         if (resultDadosProfessor) {
+            //Valida se o BD inseriu corretamente
+            if (resultDadosProfessor) {
 
-             let dadosProfessorJson = {}
-             dadosProfessorJson.status = messages.SUCCESS_UPDATED_ITEM.status
-             dadosProfessorJson.message = messages.SUCCESS_UPDATED_ITEM.message
-             dadosProfessorJson.professor = dadosProfessor
+                let dadosProfessorJson = {}
+                dadosProfessorJson.status = messages.SUCCESS_UPDATED_ITEM.status
+                dadosProfessorJson.message = messages.SUCCESS_UPDATED_ITEM.message
+                dadosProfessorJson.professor = dadosProfessor
 
-             return dadosProfessorJson
+                return dadosProfessorJson
 
-         } else {
-             return messages.ERROR_INTERNAL_SERVER
-         }
-     } else {
-         return messages.ERROR_INVALID_ID
-     }
+            } else {
+                return messages.ERROR_INTERNAL_SERVER
+            }
+        } else {
+            return messages.ERROR_INVALID_ID
+        }
+    }
 }
-}
 
-const deletarProfessor = async function(id){
+const deletarProfessor = async function (id) {
     if (id == null || id == undefined || id == '' || isNaN(id)) {
         return messages.ERROR_INVALID_ID
     } else {
@@ -168,7 +168,7 @@ const deletarProfessor = async function(id){
             } else {
                 return messages.ERROR_INTERNAL_SERVER
             }
-        } else{
+        } else {
             return messages.ERROR_INVALID_ID
         }
 

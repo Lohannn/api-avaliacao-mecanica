@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -10,7 +7,184 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model tbl_teste {
-  id Int @id @default(autoincrement())
-  nome String
+model tbl_administrador {
+  id    Int    @id @unique(map: "id") @default(autoincrement())
+  senha String @db.VarChar(20)
+}
+
+model tbl_aluno {
+  idAluno               Int                    @id @unique(map: "id") @default(autoincrement())
+  matricula             String                 @db.VarChar(20)
+  email                 String                 @db.VarChar(255)
+  nome                  String                 @db.VarChar(100)
+  senha                 String                 @db.VarChar(20)
+  id_turma              Int
+  id_tabela_desempenho  Int?
+  tbl_tabela_desempenho tbl_tabela_desempenho? @relation(fields: [id_tabela_desempenho], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK_TABELADESEMPENHO_Aluno")
+  tbl_turma             tbl_turma              @relation(fields: [id_turma], references: [id], onUpdate: Restrict, map: "FK_TURMA_Aluno")
+  tbl_aluno_avaliacao   tbl_aluno_avaliacao[]
+
+  @@index([id_tabela_desempenho], map: "FK_TABELADESEMPENHO_Aluno")
+  @@index([id_turma], map: "FK_TURMA_Aluno")
+}
+
+model tbl_aluno_avaliacao {
+  id            Int           @id @unique(map: "id") @default(autoincrement())
+  id_aluno      Int
+  id_avaliacao  Int
+  tbl_aluno     tbl_aluno     @relation(fields: [id_aluno], references: [idAluno], onUpdate: Restrict, map: "FK_ALUNO_AlunoAvaliacao")
+  tbl_avaliacao tbl_avaliacao @relation(fields: [id_avaliacao], references: [idAvaliacao], onUpdate: Restrict, map: "FK_AVALIACAO_AlunoAvaliacao")
+
+  @@index([id_aluno], map: "FK_ALUNO_AlunoAvaliacao")
+  @@index([id_avaliacao], map: "FK_AVALIACAO_AlunoAvaliacao")
+}
+
+model tbl_avaliacao {
+  idAvaliacao           Int                    @id @unique(map: "id") @default(autoincrement())
+  nome                  String                 @db.VarChar(100)
+  duracao               DateTime               @db.Time(0)
+  criticos_acertados    Int?
+  desejados_acertados   Int?
+  id_registro_tempo     Int?
+  id_tabela_desempenho  Int?
+  id_professor          Int
+  somativa              Boolean?
+  concluida             Boolean?
+  id_turma              Int
+  tbl_aluno_avaliacao   tbl_aluno_avaliacao[]
+  tbl_professor         tbl_professor          @relation(fields: [id_professor], references: [idProfessor], onUpdate: Restrict, map: "FK_PROFESSOR_Avaliacao")
+  tbl_registro_tempo    tbl_registro_tempo?    @relation(fields: [id_registro_tempo], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK_REGISTROTEMPO_Avaliacao")
+  tbl_tabela_desempenho tbl_tabela_desempenho? @relation(fields: [id_tabela_desempenho], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK_TABELADESEMPENHO_Avaliacao")
+  tbl_turma             tbl_turma              @relation(fields: [id_turma], references: [id], onUpdate: Restrict, map: "FK_TURMA_Avaliacao")
+  tbl_criterio          tbl_criterio[]
+
+  @@index([id_professor], map: "FK_PROFESSOR_Avaliacao")
+  @@index([id_registro_tempo], map: "FK_REGISTROTEMPO_Avaliacao")
+  @@index([id_tabela_desempenho], map: "FK_TABELADESEMPENHO_Avaliacao")
+  @@index([id_turma], map: "FK_TURMA_Avaliacao")
+}
+
+model tbl_criterio {
+  id              Int              @id @unique(map: "id") @default(autoincrement())
+  descricao       String           @db.Text
+  observacao      String?          @db.Text
+  id_verificacao  Int?
+  id_resultado    Int?
+  id_avaliacao    Int
+  tbl_avaliacao   tbl_avaliacao    @relation(fields: [id_avaliacao], references: [idAvaliacao], onUpdate: Restrict, map: "FK_AVALIACAO_Criterio")
+  tbl_resultado   tbl_resultado?   @relation(fields: [id_resultado], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK_RESULTADO_Criterio")
+  tbl_verificacao tbl_verificacao? @relation(fields: [id_verificacao], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK_VERIFICACAO_Criterio")
+
+  @@index([id_avaliacao], map: "FK_AVALIACAO_Criterio")
+  @@index([id_resultado], map: "FK_RESULTADO_Criterio")
+  @@index([id_verificacao], map: "FK_VERIFICACAO_Criterio")
+}
+
+model tbl_materia {
+  idMateria             Int                     @id @unique(map: "id") @default(autoincrement())
+  nome                  String                  @db.VarChar(100)
+  sigla                 String?                 @db.VarChar(5)
+  tbl_professor_materia tbl_professor_materia[]
+}
+
+model tbl_periodo {
+  idPeriodo         Int                 @id @unique(map: "id") @default(autoincrement())
+  nome              String              @db.VarChar(50)
+  sigla             String              @db.VarChar(10)
+  tbl_periodo_turma tbl_periodo_turma[]
+}
+
+model tbl_periodo_turma {
+  id          Int         @id @unique(map: "id") @default(autoincrement())
+  id_periodo  Int
+  id_turma    Int
+  tbl_periodo tbl_periodo @relation(fields: [id_periodo], references: [idPeriodo], onUpdate: Restrict, map: "FK_PERIODO_PeriodoTurma")
+  tbl_turma   tbl_turma   @relation(fields: [id_turma], references: [id], onUpdate: Restrict, map: "FK_TURMA_Periodoturma")
+
+  @@index([id_periodo], map: "FK_PERIODO_PeriodoTurma")
+  @@index([id_turma], map: "FK_TURMA_Periodoturma")
+}
+
+model tbl_professor {
+  idProfessor           Int                     @id @unique(map: "id") @default(autoincrement())
+  nome                  String                  @db.VarChar(100)
+  email                 String                  @db.VarChar(255)
+  senha                 String                  @db.VarChar(20)
+  tbl_avaliacao         tbl_avaliacao[]
+  tbl_professor_materia tbl_professor_materia[]
+  tbl_turma_professor   tbl_turma_professor[]
+}
+
+model tbl_professor_materia {
+  id            Int           @id @unique(map: "id") @default(autoincrement())
+  id_professor  Int
+  id_materia    Int
+  tbl_materia   tbl_materia   @relation(fields: [id_materia], references: [idMateria], onUpdate: Restrict, map: "FK_MATERIA_ProfessorMateria")
+  tbl_professor tbl_professor @relation(fields: [id_professor], references: [idProfessor], onUpdate: Restrict, map: "FK_PROFESSOR_ProfessorMateria")
+
+  @@index([id_materia], map: "FK_MATERIA_ProfessorMateria")
+  @@index([id_professor], map: "FK_PROFESSOR_ProfessorMateria")
+}
+
+model tbl_registro_tempo {
+  id              Int             @id @unique(map: "id") @default(autoincrement())
+  data_registro   DateTime?       @db.Date
+  hora_inicio     DateTime?       @db.Time(0)
+  hora_termino    DateTime?       @db.Time(0)
+  hora_descontada DateTime?       @db.Time(0)
+  hora_liquida    DateTime?       @db.Time(0)
+  tbl_avaliacao   tbl_avaliacao[]
+}
+
+model tbl_resultado {
+  id                 Int            @id @unique(map: "id") @default(autoincrement())
+  resultado_desejado String         @db.VarChar(25)
+  resultado_obtido   String         @db.VarChar(25)
+  tbl_criterio       tbl_criterio[]
+}
+
+model tbl_semestre {
+  idSemestre    Int         @id @unique(map: "id") @default(autoincrement())
+  nome_semestre String      @db.VarChar(20)
+  tbl_turma     tbl_turma[]
+}
+
+model tbl_tabela_desempenho {
+  id            Int             @id @unique(map: "id") @default(autoincrement())
+  nota_nivel    Int
+  nota          Int
+  tbl_aluno     tbl_aluno[]
+  tbl_avaliacao tbl_avaliacao[]
+}
+
+model tbl_turma {
+  id                  Int                   @id @unique(map: "id") @default(autoincrement())
+  nome                String                @db.VarChar(50)
+  sigla               String                @db.VarChar(5)
+  id_semestre         Int
+  tbl_aluno           tbl_aluno[]
+  tbl_avaliacao       tbl_avaliacao[]
+  tbl_periodo_turma   tbl_periodo_turma[]
+  tbl_semestre        tbl_semestre          @relation(fields: [id_semestre], references: [idSemestre], onUpdate: Restrict, map: "FK_SEMESTRE_Turma")
+  tbl_turma_professor tbl_turma_professor[]
+
+  @@index([id_semestre], map: "FK_SEMESTRE_Turma")
+}
+
+model tbl_turma_professor {
+  id            Int           @id @unique(map: "id") @default(autoincrement())
+  id_professor  Int
+  id_turma      Int
+  tbl_professor tbl_professor @relation(fields: [id_professor], references: [idProfessor], onUpdate: Restrict, map: "FK_PROFESSOR_TurmaProfessor")
+  tbl_turma     tbl_turma     @relation(fields: [id_turma], references: [id], onUpdate: Restrict, map: "FK_TURMA_TurmaProfessor")
+
+  @@index([id_professor], map: "FK_PROFESSOR_TurmaProfessor")
+  @@index([id_turma], map: "FK_TURMA_TurmaProfessor")
+}
+
+model tbl_verificacao {
+  id                    Int            @id @unique(map: "id") @default(autoincrement())
+  verificacao_aluno     String         @db.VarChar(5)
+  confirmacao_professor String         @db.VarChar(5)
+  tbl_criterio          tbl_criterio[]
 }
