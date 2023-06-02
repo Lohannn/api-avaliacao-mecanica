@@ -47,22 +47,17 @@ const insertTurma = async function (dadosTurma, id_periodo, id_professor) {
 
     if (resultStatus) {
 
-        var tblPeriodoTurmaLastId = selectTblPeriodoTurmaLastId()
+        let tblPeriodoTurmaLastId = await selectTblPeriodoTurmaLastId()
+        console.log(id_periodo);
+        console.log(tblPeriodoTurmaLastId);
 
-        let passIdPeriodo = `update tbl_periodo_turma set id_periodo = ${id_periodo} where id = ${tblPeriodoTurmaLastId}`
+        let passIdPeriodo = `update tbl_periodo_turma set id_periodo = ${id_periodo} where tbl_periodo_turma.id = ${parseInt(tblPeriodoTurmaLastId.id)}`
 
         let executeSecondScript = async function(){await prisma.$executeRawUnsafe(passIdPeriodo)}
 
         executeSecondScript()
 
-        var getProfessorByid = controllerProfessor.selecByIdProfessor(id_professor)
-
-        let passIdProfessor = `update tbl_turma_professor set id_professor = ${id_professor} from tbl_turma_professor inner join tbl_professor on tbl_professor.id = tbl_turma_professor.id_professor where idProfessor = ${getProfessorByid.id}`
-
-        let executeThirdScript = async function(){await prisma.$executeRawUnsafe(passIdProfessor)}
-
-        executeThirdScript()
-
+        console.log('Mike Tyson *************' + tblPeriodoTurmaLastId.id)
 
         return true
 
@@ -72,12 +67,12 @@ const insertTurma = async function (dadosTurma, id_periodo, id_professor) {
 }
 
 const selectTblPeriodoTurmaLastId = async function () {
-    let sql = 'select * from tbl_periodo_turma order by id desc limit 1;'
+    let sql = 'select tbl_periodo_turma.id from tbl_periodo_turma order by id desc limit 1'
 
     let rsPeriodoTurma = await prisma.$queryRawUnsafe(sql)
 
     if (rsPeriodoTurma.length > 0) {
-        return rsPeriodoTurma
+        return rsPeriodoTurma[0]
     } else {
         return false
     }

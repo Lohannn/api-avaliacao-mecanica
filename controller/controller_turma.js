@@ -48,7 +48,7 @@ const getTurmaById = async function (id) {
     }
 }
 
-const inserirNovaTurma = async function (dadosTurma, idProfessor, idPeriodo) {
+const inserirNovaTurma = async function (dadosTurma, idPeriodo, idProfessor) {
     //Validaçao de campos obrigatorios e limite de cracteres
     if (dadosTurma.nome == '' || dadosTurma.nome == undefined || dadosTurma.nome.length > 100
         || dadosTurma.sigla == '' || dadosTurma.sigla == undefined || dadosTurma.sigla.length > 5

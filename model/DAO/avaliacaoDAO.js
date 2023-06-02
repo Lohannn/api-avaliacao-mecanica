@@ -13,11 +13,15 @@ var prisma = new PrismaClient()
 const selectAllAvaliacoes = async function () {
 
     //scriptSQL para buscar todos os itens do BD
-    let sql = 'SELECT * FROM tbl_avaliacao'
+    let sql = 'SELECT tbl_avaliacao.idAvaliacao as id_avaliacao, tbl_avaliacao.nome, ' 
+    + ' tbl_avaliacao.somativa, tbl_avaliacao.concluida' 
+    + ' from tbl_avaliacao '
 
     //$queryRawUnsafe(sql) - Permite interpretar uma variável como sendo um scriptSQL
     //$queryRaw('SELECT * FROM tbl_aluno') - Executa diretamente o script dentro do método
     let rsAvaliacao = await prisma.$queryRawUnsafe(sql)
+
+    console.log(rsAvaliacao);
 
     //Valida se o BD retornou algum registro
     if (rsAvaliacao.length > 0) {
@@ -30,7 +34,8 @@ const selectAllAvaliacoes = async function () {
 
 const selectAllAvaliacoesByTurma = async function (idTurma) {
     //scriptSQL para buscar todos os itens do BD
-    let sql = `SELECT * FROM tbl_avaliacao where id_turma = ${idTurma}`
+    let sql = `SELECT tbl_avaliacao.idAvaliacao as id_avaliacao, tbl_avaliacao.nome, tbl_avaliacao.somativa, tbl_avaliacao.concluida
+    from tbl_avaliacao where id_turma = ${idTurma}`
 
     //$queryRawUnsafe(sql) - Permite interpretar uma variável como sendo um scriptSQL
     //$queryRaw('SELECT * FROM tbl_aluno') - Executa diretamente o script dentro do método
@@ -45,7 +50,14 @@ const selectAllAvaliacoesByTurma = async function (idTurma) {
 }
 
 const selectByIdAvaliacao = async function (idAvaliacao) {
-    let sql = `select * from tbl_avaliacao where idAvaliacao = ${idAvaliacao}`
+    let sql = `SELECT tbl_avaliacao.idAvaliacao as id_avaliacao, tbl_avaliacao.nome as nome_avaliacao, tbl_avaliacao.duracao, tbl_avaliacao.criticos_acertados, 
+    tbl_avaliacao.desejados_acertados, tbl_avaliacao.somativa, tbl_avaliacao.concluida, tbl_professor.nome as professor, concat(tbl_turma.nome, "(", tbl_turma.sigla, ")") as turma, 
+    tbl_criterio.id as id_criterio, tbl_criterio.descricao, tbl_criterio.observacao, tbl_resultado.resultado_desejado, tbl_resultado.resultado_obtido, 
+    tbl_verificacao.verificacao_aluno, tbl_verificacao.confirmacao_professor from tbl_avaliacao 
+    inner join tbl_criterio on tbl_criterio.id_avaliacao = tbl_avaliacao.idAvaliacao inner join tbl_resultado on tbl_resultado.id = tbl_criterio.id_resultado 
+    inner join tbl_verificacao on tbl_verificacao.id = tbl_criterio.id_verificacao inner join tbl_professor on tbl_professor.idProfessor = tbl_avaliacao.id_professor 
+    inner join tbl_turma on tbl_turma.id = tbl_avaliacao.id_turma
+    where idAvaliacao = ${idAvaliacao}`
 
     let rsAvaliacao = await prisma.$queryRawUnsafe(sql)
 

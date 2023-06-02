@@ -668,7 +668,7 @@ app.delete('/v1/senai/periodo/:id', cors(), async function (request, response) {
 app.get('/v1/senai/avaliacoes', cors(), async (request, response) => {
 
     let nome = request.query.nome;
-    let idturma = request.query.idturma;
+    let idturma = request.query.turma;
 
     if (nome != undefined) {
         let dadosAvaliacao = await controllerAvaliacao.getAvaliacaoPeloNome(nome)

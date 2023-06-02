@@ -62,7 +62,7 @@ const getAvaliacaoPeloId = async function (id) {
         if (dadosAvaliacao) {
             //Criando um JSON com o atributo Alunos para encaminhar um Array de alunos
             dadosAvaliacaoJSON.status = messages.SUCCESS_REQUEST.status
-            dadosAvaliacaoJSON.avaliacaoDAO = dadosAvaliacao
+            dadosAvaliacaoJSON.avaliacao = dadosAvaliacao
             return dadosAvaliacaoJSON
         } else {
             return messages.ERROR_INTERNAL_SERVER
