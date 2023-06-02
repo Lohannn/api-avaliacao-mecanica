@@ -13,9 +13,9 @@ var prisma = new PrismaClient()
 const selectAllAvaliacoes = async function () {
 
     //scriptSQL para buscar todos os itens do BD
-    let sql = 'SELECT tbl_avaliacao.idAvaliacao as id_avaliacao, tbl_avaliacao.nome, ' 
-    + ' tbl_avaliacao.somativa, tbl_avaliacao.concluida' 
-    + ' from tbl_avaliacao '
+    let sql = 'SELECT tbl_avaliacao.idAvaliacao as id_avaliacao, tbl_avaliacao.nome, '
+        + ' tbl_avaliacao.somativa, tbl_avaliacao.concluida'
+        + ' from tbl_avaliacao '
 
     //$queryRawUnsafe(sql) - Permite interpretar uma variável como sendo um scriptSQL
     //$queryRaw('SELECT * FROM tbl_aluno') - Executa diretamente o script dentro do método
@@ -51,7 +51,7 @@ const selectAllAvaliacoesByTurma = async function (idTurma) {
 
 const selectByIdAvaliacao = async function (idAvaliacao) {
     let sql = `SELECT tbl_avaliacao.idAvaliacao as id_avaliacao, tbl_avaliacao.nome as nome_avaliacao, tbl_avaliacao.duracao, tbl_avaliacao.criticos_acertados, 
-    tbl_avaliacao.desejados_acertados, tbl_avaliacao.somativa, tbl_avaliacao.concluida, tbl_professor.nome as professor, concat(tbl_turma.nome, "(", tbl_turma.sigla, ")") as turma, 
+    tbl_avaliacao.desejados_acertados, tbl_avaliacao.somativa, tbl_avaliacao.concluida, tbl_professor.nome as professor, concat(tbl_turma.nome, " (", tbl_turma.sigla, ")") as turma, 
     tbl_criterio.id as id_criterio, tbl_criterio.descricao, tbl_criterio.observacao, tbl_resultado.resultado_desejado, tbl_resultado.resultado_obtido, 
     tbl_verificacao.verificacao_aluno, tbl_verificacao.confirmacao_professor from tbl_avaliacao 
     inner join tbl_criterio on tbl_criterio.id_avaliacao = tbl_avaliacao.idAvaliacao inner join tbl_resultado on tbl_resultado.id = tbl_criterio.id_resultado 
@@ -61,8 +61,66 @@ const selectByIdAvaliacao = async function (idAvaliacao) {
 
     let rsAvaliacao = await prisma.$queryRawUnsafe(sql)
 
+    // console.log(rsAvaliacao);
+
     if (rsAvaliacao.length > 0) {
-        return rsAvaliacao;
+        let avaliacao = {}
+        let criterios = []
+        let set = Array.from(new Set(rsAvaliacao))
+
+        avaliacao.id = 0
+        avaliacao.criterio_id = 0
+
+        console.log(set);
+
+        set.forEach(tarefa => {
+            if (avaliacao.id != tarefa.id_avaliacao) {
+                avaliacao.id = tarefa.id_avaliacao
+                avaliacao.nome = tarefa.nome_avaliacao
+                avaliacao.duracao = tarefa.duracao
+                avaliacao.acertos_criticos = tarefa.criticos_acertados
+                avaliacao.acertos_desejados = tarefa.desejados_acertados
+
+                if (tarefa.somativa == 1) {
+                    avaliacao.somativa = true
+                } else if (tarefa.somativa == 1) {
+                    avaliacao.somativa = false
+                }
+
+                avaliacao.concluida = tarefa.concluida
+                avaliacao.professor = tarefa.professor
+                avaliacao.turma = tarefa.turma
+            }
+
+            if (avaliacao.id_criterio != tarefa.id_criterio) {
+                let verificacao = {}
+                verificacao.id = tarefa.verificacao_id
+                verificacao.verificacao_aluno = tarefa.verificacao_aluno
+                verificacao.confirmacao_professor = tarefa.confirmacao_professor
+
+                verificacoes.push(verificacao)
+            }
+
+            if (avaliacao.id_resultado != tarefa.id_resultado) {
+                let resultado = {}
+                resultado.id = tarefa.resultado_id
+                resultado.resultado_desejado = tarefa.resultado_desejado
+                resultado.resultado_obtido = tarefa.resultado_obtido
+
+                resultados.push(resultado)
+            }
+
+            if (avaliacao.id_criterio != tarefa.id_criterio) {
+                let criterio = {}
+                criterio.id = tarefa.id_criterio
+                criterio.descricao = tarefa.descricao
+                criterio.observacao = tarefa.observacao
+
+                criterios.push(criterio)
+            }
+        });
+
+        return avaliacao;
     } else {
         return false
     }

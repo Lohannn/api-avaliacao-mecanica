@@ -435,13 +435,14 @@ app.get('/v1/senai/materia/:id', cors(), async (request, response) => {
 //Endpoint para criar uma matéria.
 app.post('/v1/senai/materia', cors(), bodyParserJSON, async function (request, response) {
     let contentType = request.headers['content-type']
+    let professor = request.query.id_professor;
 
     //Validação para receber dados apenas no formato JSON
     if (String(contentType).toLowerCase() == 'application/json') {
 
         let dadosBody = request.body
 
-        let resultDadosMateria = await controllerMateria.inserirNovaMateria(dadosBody)
+        let resultDadosMateria = await controllerMateria.inserirNovaMateria(dadosBody, professor)
 
         response.status(resultDadosMateria.status)
         response.json(resultDadosMateria)

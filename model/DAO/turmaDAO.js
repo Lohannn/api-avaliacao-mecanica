@@ -31,7 +31,7 @@ const selectAllTurmas = async function () {
 
 }
 
-const insertTurma = async function (dadosTurma, id_periodo, id_professor) {
+const insertTurma = async function (dadosTurma, id_periodo) {
     let sql = `insert into tbl_turma (
         nome,
         sigla,
@@ -56,8 +56,6 @@ const insertTurma = async function (dadosTurma, id_periodo, id_professor) {
         let executeSecondScript = async function(){await prisma.$executeRawUnsafe(passIdPeriodo)}
 
         executeSecondScript()
-
-        console.log('Mike Tyson *************' + tblPeriodoTurmaLastId.id)
 
         return true
 

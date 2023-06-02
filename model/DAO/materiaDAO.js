@@ -86,7 +86,7 @@ const selectLastIdMateria = async function(){
     }
 }
 
-const insertMateria = async function(dadosMateria){
+const insertMateria = async function(dadosMateria, id_professor){
     let sql = `insert into tbl_materia (
         nome,
         sigla
@@ -99,7 +99,28 @@ const insertMateria = async function(dadosMateria){
     let resultStatus = await prisma.$executeRawUnsafe(sql)
 
     if (resultStatus) {
+
+        let tblProfessorMateriaLastId = await selectTblProfessorMateriaLastId()
+        
+        let passIdProfessor = `update tbl_professor_materia set id_professor = ${id_professor} where tbl_professor_materia.idMateria = ${parseInt(tblProfessorMateriaLastId.id)}`
+
+        let executeSecondScript = async function(){await prisma.$executeRawUnsafe(passIdProfessor)}
+
+        executeSecondScript()
+
         return true
+    } else {
+        return false
+    }
+}
+
+const selectTblProfessorMateriaLastId = async function () {
+    let sql = 'select tbl_professor_materia.id from tbl_professor_materia order by id desc limit 1'
+
+    let rsProfessorMateria= await prisma.$queryRawUnsafe(sql)
+
+    if (rsProfessorMateria.length > 0) {
+        return rsProfessorMateria[0]
     } else {
         return false
     }

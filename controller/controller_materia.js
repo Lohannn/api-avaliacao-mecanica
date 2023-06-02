@@ -11,14 +11,15 @@ var messages = require('./module/config.js');
 //Import do arquivo DAO para acessar dados do aluno no BD
 var materiaDAO = require('../model/DAO/materiaDAO.js')
 
-const inserirNovaMateria = async function(dadosMateria){
+const inserirNovaMateria = async function(dadosMateria, id_professor){
     if (dadosMateria.nome == '' || dadosMateria.nome == undefined || dadosMateria.nome.length > 100
         || dadosMateria.sigla == '' || dadosMateria.sigla == undefined || dadosMateria.sigla.length > 5
+        || id_professor == '' || id_professor == null || id_professor == undefined || isNaN(id_professor)
     ){
         return messages.ERROR_REQUIRED_FIELDS
     } else{
         
-        let resultDadosMateria = await materiaDAO.insertMateria(dadosMateria)
+        let resultDadosMateria = await materiaDAO.insertMateria(dadosMateria, id_professor)
 
         if (resultDadosMateria) {
 
