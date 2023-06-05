@@ -123,8 +123,6 @@ module.exports = {
     selecByIdProfessor,
     selectLastId,
     selectProfessorByEmailAndSenha,
-    selectProfessorByEmailAndSenha,
     updateProfessor,
-    deleteProfessor,
-    selectProfessorByEmail
+    deleteProfessor
 }

@@ -182,6 +182,5 @@ module.exports = {
     inserirNovoProfessor,
     getProfessorByEmailAndSenha,
     atualizarProfessor,
-    deletarProfessor,
-    getProfessorByEmail
+    deletarProfessor
 }
