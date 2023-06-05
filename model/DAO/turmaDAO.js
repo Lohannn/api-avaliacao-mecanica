@@ -8,15 +8,16 @@
 //Import da biblioteca do prisma client
 var { PrismaClient } = require('@prisma/client');
 
-var controllerProfessor = require('./professorDAO.js')
-
 //Instância da classe PrismaClient
 var prisma = new PrismaClient()
 
 const selectAllTurmas = async function () {
 
     //scriptSQL para buscar todos os itens do BD
-    let sql = 'SELECT * FROM tbl_turma'
+    let sql = `SELECT tbl_turma.id, tbl_turma.nome, tbl_turma.sigla, tbl_semestre.nome_semestre as semestre, tbl_periodo.sigla as periodo FROM tbl_turma
+    inner join tbl_semestre on tbl_semestre.idSemestre = tbl_turma.id_semestre
+    inner join tbl_periodo_turma on tbl_periodo_turma.id_turma = tbl_turma.id
+    inner join tbl_periodo on tbl_periodo.idPeriodo = tbl_periodo_turma.id_periodo`
 
     //$queryRawUnsafe(sql) - Permite interpretar uma variável como sendo um scriptSQL
     //$queryRaw('SELECT * FROM tbl_aluno') - Executa diretamente o script dentro do método
@@ -78,7 +79,10 @@ const selectTblPeriodoTurmaLastId = async function () {
 
 
 const selectTurmaById = async function (Id) {
-    let sql = `select * from tbl_turma where id = ${Id}`
+    let sql = `SELECT tbl_turma.id, tbl_turma.nome, tbl_turma.sigla, tbl_semestre.nome_semestre as semestre, tbl_periodo.sigla as periodo FROM tbl_turma
+    inner join tbl_semestre on tbl_semestre.idSemestre = tbl_turma.id_semestre
+    inner join tbl_periodo_turma on tbl_periodo_turma.id_turma = tbl_turma.id
+    inner join tbl_periodo on tbl_periodo.idPeriodo = tbl_periodo_turma.id_periodo where id = ${Id}`
 
     let rsTurma = await prisma.$queryRawUnsafe(sql)
 
