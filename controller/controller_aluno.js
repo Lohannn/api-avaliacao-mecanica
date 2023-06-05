@@ -207,14 +207,11 @@ const getAlunoByEmailAndSenha = async function(email, senha) {
 
 
 module.exports = {
-    getAlunos,
+    atualizarAluno,
+    deletarAluno,
+    getAlunoByEmailAndSenha,
     getAlunoByID,
     getAlunoByNome,
-    getAlunoByRm,
-    inserirNovoAluno,
-    atualizarAluno,
-    getAlunoByEmailAndSenha,
-    deletarAluno,
-    getAlunoByRmAndSenha,
-    getAlunoByEmail
+    getAlunos,
+    inserirNovoAluno
 }
