@@ -188,7 +188,7 @@ app.get('/v1/senai/alunos', cors(), async (request, response) => {
     let senhaAluno = request.query.senha
     let emailAluno = request.query.email
 
-    if (rmAluno != undefined && senhaAluno != undefined) {
+    if (emailAluno != undefined && senhaAluno != undefined) {
         //Recebe os dados do controller
         let dadosAluno = await controllerAluno.getAlunoByEmailAndSenha(emailAluno, senhaAluno);
 
