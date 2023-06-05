@@ -161,15 +161,12 @@ const selectAlunoByEmailAndSenha = async function (email, senha){
 
 
 module.exports = {
-    selectAllAlunos,
-    selectByIdAluno,
-    selectAlunoByName,
-    insertAluno,
-    selectAlunoByRm,
-    selectAlunoByNameAndRm,
-    selectLastId,
-    updateAluno,
     deleteAluno,
+    insertAluno,
+    selectAllAlunos,
     selectAlunoByEmailAndSenha,
-    selectAlunoByEmail
+    selectAlunoByName,
+    selectByIdAluno,
+    selectLastId,
+    updateAluno 
 }
