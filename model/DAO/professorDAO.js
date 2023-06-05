@@ -85,18 +85,6 @@ const selectProfessorByEmailAndSenha = async function (email, senha) {
     }
 }
 
-const selectProfessorByEmail = async function (email, senha) {
-    let sql = `select * from tbl_professor where BINARY email like '${email}'`
-
-    let rsProfessor = await prisma.$queryRawUnsafe(sql)
-
-    if (rsProfessor.length > 0) {
-        return rsProfessor
-    } else {
-        return false
-    }
-}
-
 const updateProfessor = async function (dadosProfessor) {
     let sql = `update tbl_professor set 
             nome = '${dadosProfessor.nome}',

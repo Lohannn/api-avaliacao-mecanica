@@ -47,46 +47,10 @@ const selectAlunoByName = async function (nomeAluno) {
 
 }
 
-const selectAlunoByEmail = async function (emailAluno) {
-
-    //scriptSQL para buscar todos os itens do BD
-    let sql = `SELECT * FROM tbl_aluno where BINARY email = '${nomeAluno}'`
-
-    //$queryRawUnsafe(sql) - Permite interpretar uma variável como sendo um scriptSQL
-    //$queryRaw('SELECT * FROM tbl_aluno') - Executa diretamente o script dentro do método
-    let rsAluno = await prisma.$queryRawUnsafe(sql)
-
-    //Valida se o BD retornou algum registro
-    if (rsAluno.length > 0) {
-        return rsAluno
-    } else {
-        return false
-    }
-
-}
-
 const selectAlunoByRm = async function (rmAluno) {
 
     //scriptSQL para buscar todos os itens do BD
     let sql = `SELECT * FROM tbl_aluno where matricula like '${rmAluno}%'`
-
-    //$queryRawUnsafe(sql) - Permite interpretar uma variável como sendo um scriptSQL
-    //$queryRaw('SELECT * FROM tbl_aluno') - Executa diretamente o script dentro do método
-    let rsAluno = await prisma.$queryRawUnsafe(sql)
-
-    //Valida se o BD retornou algum registro
-    if (rsAluno.length > 0) {
-        return rsAluno
-    } else {
-        return false
-    }
-
-}
-
-const selectAlunoByNameAndRm = async function (nomeAluno, rmAluno) {
-
-    //scriptSQL para buscar todos os itens do BD
-    let sql = `SELECT * FROM tbl_aluno where nome like '%${nomeAluno}%' and matricula like '${rmAluno}%';`
 
     //$queryRawUnsafe(sql) - Permite interpretar uma variável como sendo um scriptSQL
     //$queryRaw('SELECT * FROM tbl_aluno') - Executa diretamente o script dentro do método
@@ -115,14 +79,12 @@ const selectByIdAluno = async function (idAluno) {
 
 const insertAluno = async function (dadosAluno) {
     let sql = `insert into tbl_aluno (
-        nome, 
-        matricula,
+        nome,
         email,
-        senha,
+        senha_email,
         id_turma
     ) values (
         '${dadosAluno.nome}',
-        '${dadosAluno.matricula}',
         '${dadosAluno.email}',
         '${dadosAluno.senha}',
         '${dadosAluno.id_turma}'
@@ -156,9 +118,8 @@ const updateAluno = async function (dadosAluno) {
 
     let sql = `update tbl_aluno set 
             nome = '${dadosAluno.nome}',
-            matricula = '${dadosAluno.matricula}',
             email = '${dadosAluno.email}',
-            senha = '${dadosAluno.senha}',
+            senha_email = '${dadosAluno.senha}',
             id_turma = ${dadosAluno.id_turma}
         where id = ${dadosAluno.id}
     `
@@ -186,8 +147,8 @@ const deleteAluno = async function (id) {
     }
 }
 
-const selectAlunoByRmAndSenha = async function (rm, senha){
-    let sql = `select * from tbl_aluno where matricula = '${rm}' and BINARY senha like '${senha}'`
+const selectAlunoByEmailAndSenha = async function (email, senha){
+    let sql = `select * from tbl_aluno where email = '${email}' and BINARY senha like '${senha}'`
 
     let rsAluno = await prisma.$queryRawUnsafe(sql)
 
@@ -209,6 +170,6 @@ module.exports = {
     selectLastId,
     updateAluno,
     deleteAluno,
-    selectAlunoByRmAndSenha,
+    selectAlunoByEmailAndSenha,
     selectAlunoByEmail
 }

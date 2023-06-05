@@ -15,8 +15,7 @@ var controllerSemestre = require('./controller/controller_semestre.js')
 var controllerPeriodo = require('./controller/controller_periodo.js')
 var controllerAvaliacao = require('./controller/controller_avaliacao.js')
 var controllerCriterio = require('./controller/controller_criterio.js')
-var controllerVerificacao = require('./controller/controller_verificacao.js')
-var controllerResultado = require('./controller/controller_resultado.js')
+var controllerMatricula = require('./controller/controller_matricula.js')
 
 //Import do arquivo que possibilitará usar as mensagens de erro.
 var messages = require('./controller/module/config.js');
@@ -43,7 +42,7 @@ app.get('/v1/senai/recuperar', cors(), async function (request, response) {
     for (let index = 1; index <= 3; index++) {
         let num = Math.floor(Math.random() * 10);
         password += String(num);
-    }
+}
 
     response.json(password)
     response.status(messages.SUCCESS_REQUEST)
@@ -80,6 +79,103 @@ app.get('/v1/senai/admin/:senha', cors(), async function (request, response) {
 
 //CRUD (Create, Read, Update, Delete)
 /*************************************************************************************
+ * Objetibo: API de controle de Matriculas.
+ * Autor: Lohannes da Silva Costa
+ * Data: 18/05/2023
+ * Versão: 1.0
+ *************************************************************************************/
+
+//Endpoint para retornar todos os alunos, retornar alunos pelo nome .
+app.get('/v1/senai/matriculas', cors(), async (request, response) => {
+    let matricula = request.query.matricula;
+
+    if (matricula != undefined) {
+        //Recebe os dados do controller
+        let dadosMateria = await controllerMatricula.getMatriculaByNumber(matricula);
+
+        //Valida se existe registro
+        response.json(dadosMateria)
+        response.status(dadosMateria.status)
+    } else {
+
+        //Recebe os dados do controller
+        let dadosMateria = await controllerMatricula.getMatricula();
+
+        //Valida se existe registro
+        response.json(dadosMateria)
+        response.status(dadosMateria.status)
+    }
+})
+
+//Endpoint para retornar um aluno pelo ID.
+app.get('/v1/senai/matricula/:id', cors(), async (request, response) => {
+    let idMatricula = request.params.id
+
+    let dadosMateria = await controllerMatricula.getMatriculaById(idMatricula)
+
+    response.status(dadosMateria.status)
+    response.json(dadosMateria)
+})
+
+//Endpoint para criar um aluno.
+app.post('/v1/senai/matricula', cors(), bodyParserJSON, async function (request, response) {
+    let contentType = request.headers['content-type']
+
+    //Validação para receber dados apenas no formato JSON
+    if (String(contentType).toLowerCase() == 'application/json') {
+        let dadosBody = request.body
+
+        let resultDadosMatricula = await controllerMatricula.inserirNovaMatricula(dadosBody)
+
+        response.status(resultDadosMatricula.status)
+        response.json(resultDadosMatricula)
+    } else {
+        response.status(messages.ERROR_INVALID_CONTENT_TYPE.status)
+        response.json(messages.ERROR_INVALID_CONTENT_TYPE.message)
+    }
+})
+
+//Endpoint para atualizar um aluno pelo ID.
+app.put('/v1/senai/matricula/:id', cors(), bodyParserJSON, async function (request, response) {
+    let contentType = request.headers['content-type']
+
+    //Validação para receber dados apenas no formato JSON
+    if (String(contentType).toLowerCase() == 'application/json') {
+        //Recebe o ID do aluno pelo parametro
+        let id = request.params.id;
+
+        //Recebe os dados dos aluno encaminhado no corpo da requisição
+        let dadosBody = request.body
+
+        let resultDadosMatricula = await controllerMatricula.atualizarMatricula(dadosBody, id)
+
+        response.status(resultDadosMatricula.status)
+        response.json(resultDadosMatricula)
+    } else {
+        response.status(messages.ERROR_INVALID_CONTENT_TYPE.status)
+        response.json(messages.ERROR_INVALID_CONTENT_TYPE.message)
+    }
+})
+
+//Endpoint para deletar um aluno pelo ID.
+app.delete('/v1/senai/matricula/:id', cors(), async function (request, response) {
+    let id = request.params.id;
+
+    let retornoMatricula = await controllerMatricula.getMatriculaById(id)
+
+    if (retornoMatricula.status == 404) {
+        response.status(retornoMatricula.status)
+        response.json(retornoMatricula)
+    } else {
+        let resultDadosMatricula = await controllerMatricula.deletarMatricula(id)
+
+        response.status(resultDadosMatricula.status)
+        response.json(resultDadosMatricula)
+    }
+})
+
+//CRUD (Create, Read, Update, Delete)
+/*************************************************************************************
  * Objetibo: API de controle de Alunos.
  * Autor: Lohannes da Silva Costa
  * Data: 18/05/2023
@@ -89,18 +185,12 @@ app.get('/v1/senai/admin/:senha', cors(), async function (request, response) {
 //Endpoint para retornar todos os alunos, retornar alunos pelo nome .
 app.get('/v1/senai/alunos', cors(), async (request, response) => {
     let nomeAluno = request.query.nome
-    let rmAluno = request.query.matricula
     let senhaAluno = request.query.senha
     let emailAluno = request.query.email
 
-    if (rmAluno != undefined && nomeAluno != undefined) {
-        let dadosAluno = await controllerAluno.getAlunoByNameAndRm(nomeAluno, rmAluno);
-
-        response.json(dadosAluno)
-        response.status(dadosAluno.status)
-    } else if (rmAluno != undefined && senhaAluno != undefined) {
+    if (rmAluno != undefined && senhaAluno != undefined) {
         //Recebe os dados do controller
-        let dadosAluno = await controllerAluno.getAlunoByRmAndSenha(rmAluno, senhaAluno);
+        let dadosAluno = await controllerAluno.getAlunoByEmailAndSenha(emailAluno, senhaAluno);
 
         //Valida se existe registro
         response.json(dadosAluno)
@@ -108,18 +198,6 @@ app.get('/v1/senai/alunos', cors(), async (request, response) => {
     } else if (nomeAluno != undefined) {
         //Recebe os dados do controller
         let dadosAluno = await controllerAluno.getAlunoByNome(nomeAluno);
-
-        //Valida se existe registro
-        response.json(dadosAluno)
-        response.status(dadosAluno.status)
-    } else if (rmAluno != undefined) {
-        let dadosAluno = await controllerAluno.getAlunoByRm(rmAluno);
-
-        //Valida se existe registro
-        response.json(dadosAluno)
-        response.status(dadosAluno.status)
-    } else if (emailAluno != undefined) {
-        let dadosAluno = await controllerAluno.getAlunoByEmail(rmAluno);
 
         //Valida se existe registro
         response.json(dadosAluno)
@@ -218,12 +296,6 @@ app.get('/v1/senai/professores', cors(), async (request, response) => {
     if (emailProfessor != undefined && senhaProfessor != undefined) {
 
         let resultDadosProfessor = await controllerProfessor.getProfessorByEmailAndSenha(emailProfessor, senhaProfessor)
-
-        response.status(resultDadosProfessor.status)
-        response.json(resultDadosProfessor)
-    } else if (emailProfessor != undefined) {
-
-        let resultDadosProfessor = await controllerProfessor.getProfessorByEmail(emailProfessor)
 
         response.status(resultDadosProfessor.status)
         response.json(resultDadosProfessor)
@@ -841,142 +913,6 @@ app.delete('/v1/senai/criterio/:id', cors(), async function (request, response) 
 })
 
 /*************************************************************************************
- * Objetibo: API de controle de Verificações.
- * Autor: Lohannes da Silva Costa
- * Data: 18/05/2023
- * Versão: 1.0
- *************************************************************************************/
-
-//Endpoint para retornar uma Verificação pelo ID.
-app.get('/v1/senai/verificacao/:id', cors(), async (request, response) => {
-    let id = request.params.id
-    let dadosVerificacao = await controllerVerificacao.getVerificacaoById(id)
-
-    response.status(dadosVerificacao.status)
-    response.json(dadosVerificacao)
-})
-
-//Endpoint para criar uma Verificação.
-app.post('/v1/senai/verificacao', cors(), bodyParserJSON, async function (request, response) {
-    let contentType = request.headers['content-type']
-
-    //Validação para receber dados apenas no formato JSON
-    if (String(contentType).toLowerCase() == 'application/json') {
-
-        let dadosBody = request.body
-
-        let resultDadosVerificacao = await controllerVerificacao.inserirNovaVerificacao(dadosBody)
-
-        response.status(resultDadosVerificacao.status)
-        response.json(resultDadosVerificacao)
-    } else {
-        response.status(messages.ERROR_INVALID_CONTENT_TYPE.status)
-        response.json(messages.ERROR_INVALID_CONTENT_TYPE.message)
-    }
-})
-
-//Endpoint para atualizar uma Verificação pelo ID.
-app.put('/v1/senai/verificacao/:id', cors(), bodyParserJSON, async function (request, response) {
-    let contentType = request.headers['content-type']
-
-    //Validação para receber dados apenas no formato JSON
-    if (String(contentType).toLowerCase() == 'application/json') {
-        //Recebe o ID do aluno pelo parametro
-        let id = request.params.id;
-
-        //Recebe os dados dos aluno encaminhado no corpo da requisição
-        let dadosBody = request.body
-
-        let resultDadosVerificacao = await controllerVerificacao.atualizarVerificacao(dadosBody, id)
-
-        response.status(resultDadosVerificacao.status)
-        response.json(resultDadosVerificacao)
-    } else {
-        response.status(messages.ERROR_INVALID_CONTENT_TYPE.status)
-        response.json(messages.ERROR_INVALID_CONTENT_TYPE.message)
-    }
-})
-
-/*************************************************************************************
- * Objetibo: API de controle de Resultados.
- * Autor: Lohannes da Silva Costa
- * Data: 18/05/2023
- * Versão: 1.0
- *************************************************************************************/
-
-//Endpoint para retornar um Resultado pelo ID.
-app.get('/v1/senai/resultado/:id', cors(), async (request, response) => {
-    let id = request.params.id
-    let dadosResultado = await controllerResultado.getResultadoById(id)
-
-    response.status(dadosResultado.status)
-    response.json(dadosResultado)
-})
-
-//Endpoint para criar um Resultado.
-app.post('/v1/senai/resultado', cors(), bodyParserJSON, async function (request, response) {
-    let contentType = request.headers['content-type']
-
-    //Validação para receber dados apenas no formato JSON
-    if (String(contentType).toLowerCase() == 'application/json') {
-
-        let dadosBody = request.body
-
-        let resultDadosResultado = await controllerResultado.inserirNovaResultado(dadosBody)
-
-        response.status(resultDadosResultado.status)
-        response.json(resultDadosResultado)
-    } else {
-        response.status(messages.ERROR_INVALID_CONTENT_TYPE.status)
-        response.json(messages.ERROR_INVALID_CONTENT_TYPE.message)
-    }
-})
-
-//Endpoint para atualizar um Resultado pelo ID.
-app.put('/v1/senai/resultado/:id', cors(), bodyParserJSON, async function (request, response) {
-    let contentType = request.headers['content-type']
-
-    //Validação para receber dados apenas no formato JSON
-    if (String(contentType).toLowerCase() == 'application/json') {
-        //Recebe o ID do aluno pelo parametro
-        let id = request.params.id;
-
-        //Recebe os dados dos aluno encaminhado no corpo da requisição
-        let dadosBody = request.body
-
-        let resultDadosVerificacao = await controllerVerificacao.atualizarVerificacao(dadosBody, id)
-
-        response.status(resultDadosVerificacao.status)
-        response.json(resultDadosVerificacao)
-    } else {
-        response.status(messages.ERROR_INVALID_CONTENT_TYPE.status)
-        response.json(messages.ERROR_INVALID_CONTENT_TYPE.message)
-    }
-})
-
-/*************************************************************************************
- * Objetibo: API de controle de Registros de Tempo.
- * Autor: Lohannes da Silva Costa
- * Data: 18/05/2023
- * Versão: 1.0
- *************************************************************************************/
-
-//Endpoint para retornar um Registro pelo ID.
-app.get('/v1/senai/registro/:id', cors(), async (request, response) => {
-
-})
-
-//Endpoint para criar um Registro.
-app.post('/v1/senai/registro', cors(), bodyParserJSON, async function (request, response) {
-
-})
-
-//Endpoint para atualizar um Registro pelo ID.
-app.put('/v1/senai/registro/:id', cors(), bodyParserJSON, async function (request, response) {
-
-})
-
-/*************************************************************************************
  * Objetibo: API de controle de Níveis de Desempenho.
  * Autor: Lohannes da Silva Costa
  * Data: 18/05/2023
@@ -990,21 +926,6 @@ app.get('/v1/senai/niveis', cors(), async (request, response) => {
 
 //Endpoint para retornar um Nível pelo ID.
 app.get('/v1/senai/nivel/:id', cors(), async (request, response) => {
-
-})
-
-//Endpoint para criar um Nível.
-app.post('/v1/senai/nivel', cors(), bodyParserJSON, async function (request, response) {
-
-})
-
-//Endpoint para atualizar um Nível pelo ID.
-app.put('/v1/senai/nivel/:id', cors(), bodyParserJSON, async function (request, response) {
-
-})
-
-//Endpoint para deletar um Nível pelo ID.
-app.delete('/v1/senai/nivel/:id', cors(), async function (request, response) {
 
 })
 

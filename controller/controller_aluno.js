@@ -46,23 +46,6 @@ const getAlunoByNome = async function (nomeDoAluno) {
     }
 }
 
-const getAlunoByEmail = async function (emailDoAluno) {
-    let dadosAlunosJSON = {}
-
-    //chama a função do arquivo DAO que irá retornar todos os registros do BD
-    let dadosAluno = await alunoDAO.selectAlunoByEmail(emailDoAluno)
-
-    if (dadosAluno) {
-        //Criando um JSON com o atributo Alunos para encaminhar um Array de alunos
-        dadosAlunosJSON.status = messages.SUCCESS_REQUEST.status
-        dadosAlunosJSON.quantidade = dadosAluno.length
-        dadosAlunosJSON.alunos = dadosAluno
-        return dadosAlunosJSON
-    } else {
-        return messages.ERROR_NOT_FOUND
-    }
-}
-
 const getAlunoByRm = async function (matriculaDoAluno) {
     let dadosAlunosJSON = {}
 
@@ -70,26 +53,6 @@ const getAlunoByRm = async function (matriculaDoAluno) {
         return messages.ERROR_REQUIRED_FIELDS
     } else {
         let dadosAluno = await alunoDAO.selectAlunoByRm(matriculaDoAluno)
-
-        if (dadosAluno) {
-            //Criando um JSON com o atributo Alunos para encaminhar um Array de alunos
-            dadosAlunosJSON.status = messages.SUCCESS_REQUEST.status
-            dadosAlunosJSON.quantidade = dadosAluno.length
-            dadosAlunosJSON.alunos = dadosAluno
-            return dadosAlunosJSON
-        } else {
-            return messages.ERROR_NOT_FOUND
-        }
-    }
-}
-
-const getAlunoByNameAndRm = async function (nomeDoAluno, matriculaDoAluno) {
-    let dadosAlunosJSON = {}
-
-    if (String(matriculaDoAluno.length) > 20) {
-        return messages.ERROR_REQUIRED_FIELDS
-    } else {
-        let dadosAluno = await alunoDAO.selectAlunoByNameAndRm(nomeDoAluno, matriculaDoAluno)
 
         if (dadosAluno) {
             //Criando um JSON com o atributo Alunos para encaminhar um Array de alunos
@@ -127,7 +90,6 @@ const getAlunoByID = async function (id) {
 const inserirNovoAluno = async function (dadosAluno) {
     //Validaçao de campos obrigatorios e limite de cracteres
     if (dadosAluno.nome == '' || dadosAluno.nome == undefined || dadosAluno.nome.length > 100
-        || dadosAluno.matricula == '' || dadosAluno.matricula == undefined || dadosAluno.matricula.length > 20
         || dadosAluno.email == '' || dadosAluno.email == undefined || dadosAluno.email.length > 255
         || dadosAluno.senha == '' || dadosAluno.senha == undefined || dadosAluno.senha.length > 20
         || dadosAluno.id_turma == '' || dadosAluno.id_turma == undefined
@@ -158,7 +120,6 @@ const atualizarAluno = async function (dadosAluno, id) {
 
     //Validaçao de campos obrigatorios e limite de cracteres
     if (dadosAluno.nome == '' || dadosAluno.nome == undefined || dadosAluno.nome.length > 100
-        || dadosAluno.matricula == '' || dadosAluno.matricula == undefined || dadosAluno.matricula.length > 20
         || dadosAluno.email == '' || dadosAluno.email == undefined || dadosAluno.email.length > 255
         || dadosAluno.senha == '' || dadosAluno.senha == undefined || dadosAluno.senha.length > 20
         || dadosAluno.id_turma == '' || dadosAluno.id_turma == undefined 
@@ -225,13 +186,13 @@ const deletarAluno = async function (id) {
 
 }
 
-const getAlunoByRmAndSenha = async function(rm, senha) {
-    if (rm == '' ||   rm == undefined || senha == '' || senha == undefined) {
+const getAlunoByEmailAndSenha = async function(email, senha) {
+    if (email == '' ||   email == undefined || senha == '' || senha == undefined) {
         return messages.ERROR_REQUIRED_FIELDS
     } else {
         let dadosAlunoJson = {};
 
-        let dadosAluno = await alunoDAO.selectAlunoByRmAndSenha(rm, senha)
+        let dadosAluno = await alunoDAO.selectAlunoByEmailAndSenha(email, senha)
 
         if (dadosAluno) {
             //criando um JSon com o atributo alunos, para encaminhar um array de alunos
@@ -252,7 +213,7 @@ module.exports = {
     getAlunoByRm,
     inserirNovoAluno,
     atualizarAluno,
-    getAlunoByNameAndRm,
+    getAlunoByEmailAndSenha,
     deletarAluno,
     getAlunoByRmAndSenha,
     getAlunoByEmail
