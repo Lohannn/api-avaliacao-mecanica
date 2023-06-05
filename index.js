@@ -16,6 +16,7 @@ var controllerPeriodo = require('./controller/controller_periodo.js')
 var controllerAvaliacao = require('./controller/controller_avaliacao.js')
 var controllerCriterio = require('./controller/controller_criterio.js')
 var controllerMatricula = require('./controller/controller_matricula.js')
+var controllerDesempenho = require('./controller/controller_desempenho.js')
 
 //Import do arquivo que possibilitará usar as mensagens de erro.
 var messages = require('./controller/module/config.js');
@@ -921,12 +922,18 @@ app.delete('/v1/senai/criterio/:id', cors(), async function (request, response) 
 
 //Endpoint para retornar todos os Níveis.
 app.get('/v1/senai/niveis', cors(), async (request, response) => {
+    let dadosDesempenho = await controllerDesempenho.getDesempenho()
 
+    response.status(dadosDesempenho.status)
+    response.json(dadosDesempenho)
 })
 
 //Endpoint para retornar um Nível pelo ID.
 app.get('/v1/senai/nivel/:id', cors(), async (request, response) => {
+    let dadosDesempenho = await controllerDesempenho.getDesempenhoById()
 
+    response.status(dadosDesempenho.status)
+    response.json(dadosDesempenho)
 })
 
 app.listen(8080, function () {

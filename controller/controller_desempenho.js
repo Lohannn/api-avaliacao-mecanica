@@ -51,10 +51,6 @@ const getDesempenhoById = async function (id) {
 }
 
 module.exports = {
-    atualizarMatricula,
-    deletarMatricula,
-    getMatricula,
-    getMatriculaById,
-    getMatriculaByNumber,
-    inserirNovaMatricula
+    getDesempenho,
+    getDesempenhoById
 }
