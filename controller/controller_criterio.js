@@ -115,30 +115,19 @@ const inserirNovoCriterio = async function (dadosCriterio) {
         || isNaN(dadosCriterio.id_avaliacao)
     ) {
         return messages.ERROR_REQUIRED_FIELDS
-    } else if (id == null || id == undefined || isNaN(id)) {
-        return messages.ERROR_INVALID_ID
     } else {
         //Adiciona o ID do aluno no JSON dos dados
         let inserirCriterio = await criterioDAO.insertCriterio(dadosCriterio)
 
         if (inserirCriterio) {
-            let resultdadosCriterios = await criterioDAO.updateCriterio(dadosCriterio)
-
             //Valida se o BD inseriu corretamente
-            if (resultdadosCriterios) {
-                
-                let novoCriterio = await criterioDAO.selectLastIdCriterio()
-                resultadoDAO.insertResultado(novoCriterio.id);
+            let novoCriterio = await criterioDAO.selectLastIdCriterio()
 
-                let dadosCriterioJSon = {}
-                dadosCriterioJSon.status = messages.SUCCESS_CREATED_ITEM.status
-                dadosCriterioJSon.aluno = novoCriterio
+            let dadosCriterioJSon = {}
+            dadosCriterioJSon.status = messages.SUCCESS_CREATED_ITEM.status
+            dadosCriterioJSon.aluno = novoCriterio
 
-                return dadosCriterioJSon
-
-            } else {
-                return messages.ERROR_INTERNAL_SERVER
-            }
+            return dadosCriterioJSon
         } else {
             return messages.ERROR_INVALID_ID
         }
@@ -147,7 +136,7 @@ const inserirNovoCriterio = async function (dadosCriterio) {
     }
 }
 
-const deletarCriterio = async function(id){
+const deletarCriterio = async function (id) {
     if (id == null || id == undefined || id == '' || isNaN(id)) {
         return messages.ERROR_INVALID_ID
     } else {
@@ -162,7 +151,7 @@ const deletarCriterio = async function(id){
             } else {
                 return messages.ERROR_INTERNAL_SERVER
             }
-        } else{
+        } else {
             return messages.ERROR_INVALID_ID
         }
 

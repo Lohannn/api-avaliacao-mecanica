@@ -56,77 +56,83 @@ const selectAllAvaliacoesByTurma = async function (idTurma) {
 }
 
 const selectByIdAvaliacao = async function (idAvaliacao) {
-    let sql = `SELECT tbl_avaliacao.idAvaliacao as id_avaliacao, tbl_avaliacao.nome as nome_avaliacao, tbl_avaliacao.duracao, tbl_avaliacao.criticos_acertados, 
-    tbl_avaliacao.desejados_acertados, tbl_avaliacao.somativa, tbl_avaliacao.concluida, tbl_professor.nome as professor, concat(tbl_turma.nome, " (", tbl_turma.sigla, ")") as turma, 
-    tbl_criterio.id as id_criterio, tbl_criterio.descricao, tbl_criterio.observacao, tbl_resultado.resultado_desejado, tbl_resultado.resultado_obtido, 
-    tbl_verificacao.verificacao_aluno, tbl_verificacao.confirmacao_professor from tbl_avaliacao 
-    inner join tbl_criterio on tbl_criterio.id_avaliacao = tbl_avaliacao.idAvaliacao inner join tbl_resultado on tbl_resultado.id = tbl_criterio.id_resultado 
-    inner join tbl_verificacao on tbl_verificacao.id = tbl_criterio.id_verificacao inner join tbl_professor on tbl_professor.idProfessor = tbl_avaliacao.id_professor 
-    inner join tbl_turma on tbl_turma.id = tbl_avaliacao.id_turma
-    where idAvaliacao = ${idAvaliacao}`
+    let sql = `SELECT tbl_avaliacao.idAvaliacao as id_avaliacao, tbl_avaliacao.nome as nome_avaliacao, 
+    SUM(tbl_verificacao_matricula.confirmacao_professor = 'S') as criticos_acertados, 
+    SUM(tbl_verificacao_matricula.confirmacao_professor = 'S') as desejados_acertados, tbl_avaliacao.somativa, tbl_avaliacao.concluida, 
+    tbl_professor.nome as professor, 
+    concat(tbl_turma.nome, " (", tbl_turma.sigla, ")") as turma, 
+    tbl_criterio.id as id_criterio, tbl_criterio.descricao, tbl_criterio.observacao, 
+    tbl_verificacao_matricula.id as resultado_id, tbl_verificacao_matricula.resultado_desejado, tbl_verificacao_matricula.resultado_obtido, tbl_verificacao_matricula.verificacao_aluno, tbl_verificacao_matricula.confirmacao_professor
+    from tbl_avaliacao 
+        inner join tbl_criterio on tbl_criterio.id_avaliacao = tbl_avaliacao.idAvaliacao
+        inner join tbl_verificacao_matricula on tbl_verificacao_matricula.id_criterio = tbl_criterio.id
+        inner join tbl_professor on tbl_professor.idProfessor = tbl_avaliacao.id_professor
+        inner join tbl_turma on tbl_turma.id = tbl_avaliacao.id_turma
+    where idAvaliacao = ${idAvaliacao}
+    GROUP BY id_avaliacao, id_criterio, resultado_id;`
 
     let rsAvaliacao = await prisma.$queryRawUnsafe(sql)
 
     // console.log(rsAvaliacao);
 
     if (rsAvaliacao.length > 0) {
-        let avaliacao = {}
-        let criterios = []
-        let set = Array.from(new Set(rsAvaliacao))
+        // let avaliacao = {}
+        // let criterios = []
+        // let set = Array.from(new Set(rsAvaliacao))
 
-        avaliacao.id = 0
-        avaliacao.criterio_id = 0
+        // avaliacao.id = 0
+        // avaliacao.criterio_id = 0
 
-        console.log(set);
+        // console.log(set);
 
-        set.forEach(tarefa => {
-            if (avaliacao.id != tarefa.id_avaliacao) {
-                avaliacao.id = tarefa.id_avaliacao
-                avaliacao.nome = tarefa.nome_avaliacao
-                avaliacao.duracao = tarefa.duracao
-                avaliacao.acertos_criticos = tarefa.criticos_acertados
-                avaliacao.acertos_desejados = tarefa.desejados_acertados
+        // set.forEach(tarefa => {
+        //     if (avaliacao.id != tarefa.id_avaliacao) {
+        //         avaliacao.id = tarefa.id_avaliacao
+        //         avaliacao.nome = tarefa.nome_avaliacao
+        //         avaliacao.duracao = tarefa.duracao
+        //         avaliacao.acertos_criticos = tarefa.criticos_acertados
+        //         avaliacao.acertos_desejados = tarefa.desejados_acertados
 
-                if (tarefa.somativa == 1) {
-                    avaliacao.somativa = true
-                } else if (tarefa.somativa == 1) {
-                    avaliacao.somativa = false
-                }
+        //         if (tarefa.somativa == 1) {
+        //             avaliacao.somativa = true
+        //         } else if (tarefa.somativa == 1) {
+        //             avaliacao.somativa = false
+        //         }
 
-                avaliacao.concluida = tarefa.concluida
-                avaliacao.professor = tarefa.professor
-                avaliacao.turma = tarefa.turma
-            }
+        //         avaliacao.concluida = tarefa.concluida
+        //         avaliacao.professor = tarefa.professor
+        //         avaliacao.turma = tarefa.turma
+        //     }
 
-            if (avaliacao.id_criterio != tarefa.id_criterio) {
-                let verificacao = {}
-                verificacao.id = tarefa.verificacao_id
-                verificacao.verificacao_aluno = tarefa.verificacao_aluno
-                verificacao.confirmacao_professor = tarefa.confirmacao_professor
+        //     if (avaliacao.id_criterio != tarefa.id_criterio) {
+        //         let verificacao = {}
+        //         verificacao.id = tarefa.verificacao_id
+        //         verificacao.verificacao_aluno = tarefa.verificacao_aluno
+        //         verificacao.confirmacao_professor = tarefa.confirmacao_professor
 
-                verificacoes.push(verificacao)
-            }
+        //         verificacoes.push(verificacao)
+        //     }
 
-            if (avaliacao.id_resultado != tarefa.id_resultado) {
-                let resultado = {}
-                resultado.id = tarefa.resultado_id
-                resultado.resultado_desejado = tarefa.resultado_desejado
-                resultado.resultado_obtido = tarefa.resultado_obtido
+        //     if (avaliacao.id_resultado != tarefa.id_resultado) {
+        //         let resultado = {}
+        //         resultado.id = tarefa.resultado_id
+        //         resultado.resultado_desejado = tarefa.resultado_desejado
+        //         resultado.resultado_obtido = tarefa.resultado_obtido
 
-                resultados.push(resultado)
-            }
+        //         resultados.push(resultado)
+        //     }
 
-            if (avaliacao.id_criterio != tarefa.id_criterio) {
-                let criterio = {}
-                criterio.id = tarefa.id_criterio
-                criterio.descricao = tarefa.descricao
-                criterio.observacao = tarefa.observacao
+        //     if (avaliacao.id_criterio != tarefa.id_criterio) {
+        //         let criterio = {}
+        //         criterio.id = tarefa.id_criterio
+        //         criterio.descricao = tarefa.descricao
+        //         criterio.observacao = tarefa.observacao
 
-                criterios.push(criterio)
-            }
-        });
+        //         criterios.push(criterio)
+        //     }
+        // });
 
-        return avaliacao;
+        return rsAvaliacao;
     } else {
         return false
     }
@@ -145,7 +151,7 @@ const selectByNomeAvaliacao = async function (nomeAvaliacao) {
 }
 
 const selectLastIdAvaliacao = async function () {
-    let sql = 'select * from tbl_avaliacaio order by idAvaliacao desc limit 1;'
+    let sql = 'select * from tbl_avaliacao order by idAvaliacao desc limit 1;'
 
     let rsAvaliacao = await prisma.$queryRawUnsafe(sql)
 
@@ -190,15 +196,17 @@ const deleteAvaliacao = async function (idAvaliacao) {
 }
 
 const insertAvaliacao = async function (dadosAvaliacao) {
+    console.log(dadosAvaliacao.id_professor);
+
     let sql = `insert into tbl_avaliacao 
     (
         nome,
         id_professor,
         id_turma
     ) values (
-        nome = '${dadosAvaliacao.nome}',
-        id_professor = ${dadosAvaliacao.id_professor},
-        id_turma = ${dadosAvaliacao.id_turma}
+        '${dadosAvaliacao.nome}',
+        ${dadosAvaliacao.id_professor},
+        ${dadosAvaliacao.id_turma}
     )`
 
     //Executa o scriptSQL no BD

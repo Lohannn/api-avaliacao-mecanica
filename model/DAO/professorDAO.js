@@ -39,24 +39,35 @@ const selecByIdProfessor = async function (idProfessor) {
 }
 
 const insertProfessor = async function (dadosProfessor) {
-    let sql = `insert into tbl_professor (
-        nome,
-        email,
-        senha
-    ) values (
-        '${dadosProfessor.nome}',
-        '${dadosProfessor.email}',
-        '${dadosProfessor.senha}'
-    )`;
 
-    //Sempre que não formos utilizar um select, devemos usar o metodo executeRawUnsafe                        
-    let resultStatus = await prisma.$executeRawUnsafe(sql)
+    let sqlCheckAluno = `SELECT EXISTS(SELECT * FROM tbl_professor WHERE tbl_professor.email = '${dadosProfessor.email}') as result;`
 
-    if (resultStatus) {
-        return true
-    } else {
+    let resultCheck = await prisma.$queryRawUnsafe(sqlCheckAluno)
+
+    if (resultCheck[0].result == 1n) {
         return false
+    } else{
+        let sql = `insert into tbl_professor (
+            nome,
+            email,
+            senha
+        ) values (
+            '${dadosProfessor.nome}',
+            '${dadosProfessor.email}',
+            '${dadosProfessor.senha}'
+        )`;
+    
+        //Sempre que não formos utilizar um select, devemos usar o metodo executeRawUnsafe                        
+        let resultStatus = await prisma.$executeRawUnsafe(sql)
+    
+        if (resultStatus) {
+            return true
+        } else {
+            return false
+        }
     }
+
+    
 }
 
 const selectLastId = async function () {

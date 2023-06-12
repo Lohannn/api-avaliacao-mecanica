@@ -98,9 +98,9 @@ const selectLastIdCriterio = async function(){
 }
 
 const insertCriterio= async function (dadosCriterio) {
-    let sql = `insert into tbl_aluno (
+    let sql = `insert into tbl_criterio (
         descricao,
-        observacao
+        observacao,
         id_avaliacao
     ) values (
         '${dadosCriterio.descricao}',
