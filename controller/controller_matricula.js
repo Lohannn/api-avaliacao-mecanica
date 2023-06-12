@@ -16,13 +16,13 @@ const getMatricula = async function () {
     let dadosMatriculasJSON = {}
 
     //chama a função do arquivo DAO que irá retornar todos os registros do BD
-    let dadosMatricula = await matriculaDAO.selectAllAlunos()
+    let dadosMatricula = await matriculaDAO.selectAllMatriculas()
 
     if (dadosMatricula) {
         //Criando um JSON com o atributo Alunos para encaminhar um Array de alunos
         dadosMatriculasJSON.status = messages.SUCCESS_REQUEST.status
         dadosMatriculasJSON.quantidade = dadosMatricula.length
-        dadosMatriculasJSON.alunos = dadosMatricula
+        dadosMatriculasJSON.matriculas = dadosMatricula
         return dadosMatriculasJSON
     } else {
         return messages.ERROR_INTERNAL_SERVER
@@ -39,7 +39,7 @@ const getMatriculaByNumber = async function (rm) {
         //Criando um JSON com o atributo Alunos para encaminhar um Array de alunos
         dadosMatriculasJSON.status = messages.SUCCESS_REQUEST.status
         dadosMatriculasJSON.quantidade = dadosMatricula.length
-        dadosMatriculasJSON.alunos = dadosMatricula
+        dadosMatriculasJSON.matricula = dadosMatricula
         return dadosMatriculasJSON
     } else {
         return messages.ERROR_NOT_FOUND
@@ -59,7 +59,7 @@ const getMatriculaById = async function (id) {
         if (dadosMatricula) {
             //criando um JSon com o atributo alunos, para encaminhar um array de alunos
             dadosMatriculaJson.status = messages.SUCCESS_REQUEST.status
-            dadosMatriculaJson.aluno = dadosMatricula
+            dadosMatriculaJson.matricula = dadosMatricula
             return dadosMatriculaJson
         } else {
             return messages.ERROR_NOT_FOUND
@@ -68,9 +68,11 @@ const getMatriculaById = async function (id) {
 }
 
 const inserirNovaMatricula = async function (dadosMatricula) {
+
     //Validaçao de campos obrigatorios e limite de cracteres
-    if (dadosMatricula.numero == '' || dadosMatricula.numero == undefined || dadosMatricula.numero.length > 100
-        || dadosMatricula.id_aluno == '' || dadosMatricula.id_aluno == undefined
+    if (dadosMatricula.numero == '' || dadosMatricula.numero == undefined || dadosMatricula.numero.length > 100 
+        || dadosMatricula.id_aluno == '' || dadosMatricula.id_aluno == undefined ||
+        dadosMatricula.id_curso == '' || dadosMatricula.id_curso == undefined 
     ) {
         return messages.ERROR_REQUIRED_FIELDS
     } else {
@@ -83,11 +85,11 @@ const inserirNovaMatricula = async function (dadosMatricula) {
 
             let dadosMatriculaJSon = {}
             dadosMatriculaJSon.status = messages.SUCCESS_CREATED_ITEM.status
-            dadosMatriculaJSon.aluno = novaMatricula
+            dadosMatriculaJSon.matricula = novaMatricula
 
             return dadosMatriculaJSon
         } else {
-            return messages.ERROR_INTERNAL_SERVER
+            return messages.ERROR_MATRICULA_ALREADY_EXISTS
         }
     }
 }
@@ -96,7 +98,8 @@ const atualizarMatricula = async function (dadosMatricula, id) {
 
     //Validaçao de campos obrigatorios e limite de cracteres
     if (dadosMatricula.numero == '' || dadosMatricula.numero == undefined || dadosMatricula.numero.length > 100
-    || dadosMatricula.id_aluno == '' || dadosMatricula.id_aluno == undefined
+    || dadosMatricula.id_aluno == '' || dadosMatricula.id_aluno == undefined ||
+      dadosMatricula.id_curso == '' || dadosMatricula.id_curso == undefined 
     ) {
         return messages.ERROR_REQUIRED_FIELDS
     } else if (id == null || id == undefined || isNaN(id)) {
@@ -116,12 +119,12 @@ const atualizarMatricula = async function (dadosMatricula, id) {
                 let dadosMatriculaJSon = {}
                 dadosMatriculaJSon.status = messages.SUCCESS_UPDATED_ITEM.status
                 dadosMatriculaJSon.message = messages.SUCCESS_UPDATED_ITEM.message
-                dadosMatriculaJSon.aluno = dadosMatricula
+                dadosMatriculaJSon.matricula = dadosMatricula
 
                 return dadosMatriculaJSon
 
             } else {
-                return messages.ERROR_INTERNAL_SERVER
+                return messages.ERROR_MATRICULA_ALREADY_EXISTS
             }
         } else {
             return messages.ERROR_INVALID_ID
@@ -163,3 +166,4 @@ module.exports = {
     getMatriculaByNumber,
     inserirNovaMatricula
 }
+

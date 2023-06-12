@@ -14,7 +14,12 @@ var prisma = new PrismaClient()
 const selectAllMatriculas = async function () {
 
     //scriptSQL para buscar todos os itens do BD
-    let sql = 'SELECT * FROM tbl_matricula'
+    let sql = `SELECT tbl_matricula.numero as matricula , tbl_curso.nome_curso as curso , tbl_aluno.nome as aluno
+	from tbl_matricula
+		inner join tbl_curso 
+			on tbl_curso.id = tbl_matricula.id_curso
+        inner join tbl_aluno
+			on tbl_aluno.id = tbl_matricula.id_aluno`
 
     //$queryRawUnsafe(sql) - Permite interpretar uma variável como sendo um scriptSQL
     //$queryRaw('SELECT * FROM tbl_aluno') - Executa diretamente o script dentro do método
@@ -32,7 +37,13 @@ const selectAllMatriculas = async function () {
 const selectMatriculaByNumber = async function (rm) {
 
     //scriptSQL para buscar todos os itens do BD
-    let sql = `SELECT * FROM tbl_matricula where numero like '%${rm}%'`
+    let sql = `SELECT tbl_matricula.numero as matricula , tbl_curso.nome_curso as curso , tbl_aluno.nome as aluno
+	from tbl_matricula
+		inner join tbl_curso 
+			on tbl_curso.id = tbl_matricula.id_curso
+        inner join tbl_aluno
+			on tbl_aluno.id = tbl_matricula.id_aluno
+            where tbl_matricula.numero like '%${rm}%';`
 
     //$queryRawUnsafe(sql) - Permite interpretar uma variável como sendo um scriptSQL
     //$queryRaw('SELECT * FROM tbl_aluno') - Executa diretamente o script dentro do método
@@ -48,7 +59,13 @@ const selectMatriculaByNumber = async function (rm) {
 }
 
 const selectMatriculaById = async function (idMatricula) {
-    let sql = `select * from tbl_matricula where id = ${idMatricula}`
+    let sql = `SELECT tbl_matricula.numero as matricula , tbl_curso.nome_curso as curso , tbl_aluno.nome as aluno
+	from tbl_matricula
+		inner join tbl_curso 
+			on tbl_curso.id = tbl_matricula.id_curso
+        inner join tbl_aluno
+			on tbl_aluno.id = tbl_matricula.id_aluno
+            where tbl_matricula.id = ${idMatricula};`
 
     let rsMatricula = await prisma.$queryRawUnsafe(sql)
 
@@ -60,22 +77,35 @@ const selectMatriculaById = async function (idMatricula) {
 }
 
 const insertMatricula = async function (dadosMatricula) {
-    let sql = `insert into tbl_matricula (
-        numero,
-        id_aluno
-    ) values (
-        '${dadosAluno.numero}'
-        '${dadosAluno.id_aluno}'
-    )`;
 
-    //Sempre que não formos utilizar um select, devemos usar o metodo executeRawUnsafe                        
-    let resultStatus = await prisma.$executeRawUnsafe(sql)
+    let sqlCheckMatricula = `SELECT EXISTS(SELECT * FROM tbl_matricula WHERE numero = '${dadosMatricula.numero}') as result;`
 
-    if (resultStatus) {
-        return true
-    } else {
+    let resultCheck = await prisma.$queryRawUnsafe(sqlCheckMatricula)
+
+    if (resultCheck[0].result == 1n) {
         return false
+    } else {
+        let sql = `insert into tbl_matricula (
+            numero,
+            id_curso,
+            id_aluno
+            ) values (
+            ${dadosMatricula.numero},
+            ${dadosMatricula.id_curso},
+            ${dadosMatricula.id_aluno}
+            )`
+
+        //Sempre que não formos utilizar um select, devemos usar o metodo executeRawUnsafe                        
+        let resultStatus = await prisma.$executeRawUnsafe(sql)
+
+        if (resultStatus) {
+            return true
+        } else {
+            return false
+        }
     }
+
+
 }
 
 const selectLastId = async function () {
@@ -92,22 +122,33 @@ const selectLastId = async function () {
     //retorna o ultimo id inserido no banco de dados
 }
 
-const updateMatricula = async function (dadosAluno) {
+const updateMatricula = async function (dadosMatricula) {
 
     let sql = `update tbl_matricula set 
-    numero = '${dadosAluno.numero}',
-            id_turma = ${dadosAluno.id_aluno}
-        where id = ${dadosAluno.id}
+            numero = '${dadosMatricula.numero}',
+            id_aluno = ${dadosMatricula.id_aluno},
+            id_curso = ${dadosMatricula.id_curso}
+        where id = ${dadosMatricula.id}
     `
 
-    //Executa o scriptSQL no BD
-    let resultStatus = await prisma.$executeRawUnsafe(sql)
+    let sqlCheckMatricula = `SELECT EXISTS(SELECT * FROM tbl_matricula WHERE numero = '${dadosMatricula.numero}') as result;`
 
-    if (resultStatus) {
-        return true
-    } else {
+    let resultCheck = await prisma.$queryRawUnsafe(sqlCheckMatricula)
+
+    if (resultCheck[0].result == 1n) {
         return false
+    } else {
+        //Executa o scriptSQL no BD
+        let resultStatus = await prisma.$executeRawUnsafe(sql)
+
+        if (resultStatus) {
+            return true
+        } else {
+            return false
+        }
     }
+
+
 }
 
 const deleteMatricula = async function (id) {

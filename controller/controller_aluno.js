@@ -91,8 +91,8 @@ const inserirNovoAluno = async function (dadosAluno) {
     //Validaçao de campos obrigatorios e limite de cracteres
     if (dadosAluno.nome == '' || dadosAluno.nome == undefined || dadosAluno.nome.length > 100
         || dadosAluno.email == '' || dadosAluno.email == undefined || dadosAluno.email.length > 255
-        || dadosAluno.senha == '' || dadosAluno.senha == undefined || dadosAluno.senha.length > 20
-        || dadosAluno.id_turma == '' || dadosAluno.id_turma == undefined
+        || dadosAluno.senha_email == '' || dadosAluno.senha_email == undefined || dadosAluno.senha_email.length > 20
+        || dadosAluno.cpf == '' || dadosAluno.cpf == undefined || dadosAluno.cpf.length > 20
     ) {
         return messages.ERROR_REQUIRED_FIELDS
     } else {
@@ -121,8 +121,8 @@ const atualizarAluno = async function (dadosAluno, id) {
     //Validaçao de campos obrigatorios e limite de cracteres
     if (dadosAluno.nome == '' || dadosAluno.nome == undefined || dadosAluno.nome.length > 100
         || dadosAluno.email == '' || dadosAluno.email == undefined || dadosAluno.email.length > 255
-        || dadosAluno.senha == '' || dadosAluno.senha == undefined || dadosAluno.senha.length > 20
-        || dadosAluno.id_turma == '' || dadosAluno.id_turma == undefined 
+        || dadosAluno.senha_email == '' || dadosAluno.senha_email == undefined || dadosAluno.senha_email.length > 20
+        || dadosAluno.cpf == '' || dadosAluno.cpf == undefined || dadosAluno.cpf.length > 20
     ) {
         return messages.ERROR_REQUIRED_FIELDS
     } else if (id == null || id == undefined || isNaN(id)) {

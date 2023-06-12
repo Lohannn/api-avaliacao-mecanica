@@ -14,6 +14,7 @@ const ERROR_INVALID_CONTENT_TYPE = {status: '415', message: 'O tipo de mídia Co
 const ERROR_INTERNAL_SERVER = {status: '500', message: 'Devido a um erro interno do servidor, não ' + 
                                                        'foi possível processar a requisição.'}
 
+const ERROR_MATRICULA_ALREADY_EXISTS = {status: '500', message: 'Uma matricula com esse número já foi cadastrada, por favor verificar o número e tentar novamente.'}
 /***************************************** MENSAGENS DE SUCESSO *****************************************/
 
 const SUCCESS_CREATED_ITEM = {status: '201', message: 'Item criado com sucesso.'}
@@ -32,5 +33,6 @@ module.exports = {
     SUCCESS_DELETED_ITEM,
     ERROR_NOT_FOUND,
     SUCCESS_ITEM_FOUND,
-    SUCCESS_REQUEST
+    SUCCESS_REQUEST,
+    ERROR_MATRICULA_ALREADY_EXISTS
 }

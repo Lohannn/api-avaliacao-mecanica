@@ -47,23 +47,7 @@ const selectAlunoByName = async function (nomeAluno) {
 
 }
 
-const selectAlunoByRm = async function (rmAluno) {
 
-    //scriptSQL para buscar todos os itens do BD
-    let sql = `SELECT * FROM tbl_aluno where matricula like '${rmAluno}%'`
-
-    //$queryRawUnsafe(sql) - Permite interpretar uma variável como sendo um scriptSQL
-    //$queryRaw('SELECT * FROM tbl_aluno') - Executa diretamente o script dentro do método
-    let rsAluno = await prisma.$queryRawUnsafe(sql)
-
-    //Valida se o BD retornou algum registro
-    if (rsAluno.length > 0) {
-        return rsAluno
-    } else {
-        return false
-    }
-
-}
 
 const selectByIdAluno = async function (idAluno) {
     let sql = `select * from tbl_aluno where id = ${idAluno}`
@@ -78,36 +62,47 @@ const selectByIdAluno = async function (idAluno) {
 }
 
 const insertAluno = async function (dadosAluno) {
-    let sql = `insert into tbl_aluno (
-        nome,
-        email,
-        senha_email,
-        id_turma
-    ) values (
-        '${dadosAluno.nome}',
-        '${dadosAluno.email}',
-        '${dadosAluno.senha}',
-        '${dadosAluno.id_turma}'
-    )`;
 
-    //Sempre que não formos utilizar um select, devemos usar o metodo executeRawUnsafe                        
-    let resultStatus = await prisma.$executeRawUnsafe(sql)
+    let sqlCheckAluno = `SELECT EXISTS(SELECT * FROM tbl_aluno WHERE tbl_aluno.cpf = '${dadosAluno.cpf}') as result;`
 
-    if (resultStatus) {
-        return true
-    } else {
+    let resultCheck = await prisma.$queryRawUnsafe(sqlCheckAluno)
+
+    if (resultCheck[0].result == 1n) {
         return false
+    } else {
+        let sql = `insert into tbl_aluno (
+            nome,
+            email,
+            senha_email,
+            cpf
+        ) values (
+            '${dadosAluno.nome}',
+            '${dadosAluno.email}',
+            '${dadosAluno.senha_email}',
+            '${dadosAluno.cpf}'
+        )`;
+
+        //Sempre que não formos utilizar um select, devemos usar o metodo executeRawUnsafe                        
+        let resultStatus = await prisma.$executeRawUnsafe(sql)
+
+        if (resultStatus) {
+            return true
+        } else {
+            return false
+        }
     }
+
+
 }
 
-const selectLastId = async function(){
+const selectLastId = async function () {
     let sql = 'select * from tbl_aluno order by id desc limit 1;'
 
     let rsAluno = await prisma.$queryRawUnsafe(sql)
 
-    if(rsAluno.length > 0){
+    if (rsAluno.length > 0) {
         return rsAluno
-    } else{
+    } else {
         return false
     }
 
@@ -120,17 +115,25 @@ const updateAluno = async function (dadosAluno) {
             nome = '${dadosAluno.nome}',
             email = '${dadosAluno.email}',
             senha_email = '${dadosAluno.senha}',
-            id_turma = ${dadosAluno.id_turma}
+            cpf = '${dadosAluno.cpf}'
         where id = ${dadosAluno.id}
     `
 
-    //Executa o scriptSQL no BD
-    let resultStatus = await prisma.$executeRawUnsafe(sql)
+    let sqlCheckAluno = `SELECT EXISTS(SELECT * FROM tbl_aluno WHERE tbl_aluno.cpf = '${dadosAluno.cpf}') as result;`
 
-    if(resultStatus){
-        return true
-    }else{
+    let resultCheck = await prisma.$queryRawUnsafe(sqlCheckAluno)
+
+    if (resultCheck[0].result == 1n) {
         return false
+    } else {
+        //Executa o scriptSQL no BD
+        let resultStatus = await prisma.$executeRawUnsafe(sql)
+
+        if (resultStatus) {
+            return true
+        } else {
+            return false
+        }
     }
 }
 
@@ -140,14 +143,14 @@ const deleteAluno = async function (id) {
 
     let resultStatus = await prisma.$executeRawUnsafe(sql)
 
-    if(resultStatus){
+    if (resultStatus) {
         return true
-    }else{
+    } else {
         return false
     }
 }
 
-const selectAlunoByEmailAndSenha = async function (email, senha){
+const selectAlunoByEmailAndSenha = async function (email, senha) {
     let sql = `select * from tbl_aluno where email = '${email}' and BINARY senha like '${senha}'`
 
     let rsAluno = await prisma.$queryRawUnsafe(sql)
@@ -168,5 +171,5 @@ module.exports = {
     selectAlunoByName,
     selectByIdAluno,
     selectLastId,
-    updateAluno 
+    updateAluno
 }
