@@ -102,7 +102,7 @@ const insertMateria = async function(dadosMateria, id_professor){
 
         let tblProfessorMateriaLastId = await selectTblProfessorMateriaLastId()
         
-        let passIdProfessor = `update tbl_professor_materia set id_professor = ${id_professor} where tbl_professor_materia.idMateria = ${parseInt(tblProfessorMateriaLastId.id)}`
+        let passIdProfessor = `update tbl_professor_materia set id_professor = ${id_professor} where tbl_professor_materia.id = ${parseInt(tblProfessorMateriaLastId.id)}`
 
         let executeSecondScript = async function(){await prisma.$executeRawUnsafe(passIdProfessor)}
 

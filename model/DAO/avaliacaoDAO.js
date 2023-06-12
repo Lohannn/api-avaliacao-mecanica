@@ -13,9 +13,15 @@ var prisma = new PrismaClient()
 const selectAllAvaliacoes = async function () {
 
     //scriptSQL para buscar todos os itens do BD
-    let sql = 'SELECT tbl_avaliacao.idAvaliacao as id_avaliacao, tbl_avaliacao.nome, '
-        + ' tbl_avaliacao.somativa, tbl_avaliacao.concluida'
-        + ' from tbl_avaliacao '
+    let sql = `SELECT tbl_avaliacao.idAvaliacao as id_avaliacao, tbl_avaliacao.nome, 
+    tbl_avaliacao.somativa, tbl_avaliacao.concluida,
+    tbl_professor.nome as professor,
+    tbl_turma.nome as turma
+    from tbl_avaliacao
+       inner join tbl_professor
+           on tbl_avaliacao.id_professor = tbl_professor.idProfessor
+       inner join tbl_turma
+           on tbl_avaliacao.id_turma = tbl_turma.id`
 
     //$queryRawUnsafe(sql) - Permite interpretar uma variável como sendo um scriptSQL
     //$queryRaw('SELECT * FROM tbl_aluno') - Executa diretamente o script dentro do método
@@ -155,7 +161,6 @@ const selectLastIdAvaliacao = async function () {
 const updateAvaliacao = async function (dadosAvaliacao) {
     let sql = `update tbl_avaliacao set 
             nome = '${dadosAvaliacao.nome}',
-            duracao = '${dadosAvaliacao.duracao}',
             id_professor = ${dadosAvaliacao.id_professor},
             id_turma = ${dadosAvaliacao.id_turma}
         where idAvaliacao = ${dadosAvaliacao.idAvaliacao}
@@ -188,12 +193,10 @@ const insertAvaliacao = async function (dadosAvaliacao) {
     let sql = `insert into tbl_avaliacao 
     (
         nome,
-        duracao,
         id_professor,
         id_turma
     ) values (
         nome = '${dadosAvaliacao.nome}',
-        duracao = '${dadosAvaliacao.duracao}',
         id_professor = ${dadosAvaliacao.id_professor},
         id_turma = ${dadosAvaliacao.id_turma}
     )`

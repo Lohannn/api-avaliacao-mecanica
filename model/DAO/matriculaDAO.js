@@ -14,7 +14,7 @@ var prisma = new PrismaClient()
 const selectAllMatriculas = async function () {
 
     //scriptSQL para buscar todos os itens do BD
-    let sql = `SELECT tbl_matricula.numero as matricula , tbl_curso.nome_curso as curso , tbl_aluno.nome as aluno
+    let sql = `SELECT tbl_matricula.numero as matricula, tbl_aluno.nome as aluno, tbl_aluno.email
 	from tbl_matricula
 		inner join tbl_curso 
 			on tbl_curso.id = tbl_matricula.id_curso
@@ -37,13 +37,39 @@ const selectAllMatriculas = async function () {
 const selectMatriculaByNumber = async function (rm) {
 
     //scriptSQL para buscar todos os itens do BD
-    let sql = `SELECT tbl_matricula.numero as matricula , tbl_curso.nome_curso as curso , tbl_aluno.nome as aluno
+    let sql = `SELECT tbl_matricula.numero as matricula, tbl_aluno.nome as aluno, tbl_aluno.email
 	from tbl_matricula
 		inner join tbl_curso 
 			on tbl_curso.id = tbl_matricula.id_curso
         inner join tbl_aluno
 			on tbl_aluno.id = tbl_matricula.id_aluno
             where tbl_matricula.numero like '%${rm}%';`
+
+    //$queryRawUnsafe(sql) - Permite interpretar uma variável como sendo um scriptSQL
+    //$queryRaw('SELECT * FROM tbl_aluno') - Executa diretamente o script dentro do método
+    let rsMatricula = await prisma.$queryRawUnsafe(sql)
+
+    //Valida se o BD retornou algum registro
+    if (rsMatricula.length > 0) {
+        return rsMatricula
+    } else {
+        return false
+    }
+
+}
+
+const selectMatriculaByTurma = async function (siglaTurma) {
+
+    //scriptSQL para buscar todos os itens do BD
+    let sql = `select tbl_matricula.id, tbl_matricula.numero as matricula, 
+    tbl_aluno.nome as aluno, tbl_aluno.email,
+    tbl_turma.nome as turma, tbl_turma.sigla as sigla_turma
+                from tbl_matricula
+                    inner join tbl_turma
+                        on tbl_matricula.id_turma = tbl_turma.id
+                    inner join tbl_aluno
+                        on tbl_matricula.id_aluno = tbl_aluno.id
+                where tbl_turma.sigla = '${siglaTurma}'`
 
     //$queryRawUnsafe(sql) - Permite interpretar uma variável como sendo um scriptSQL
     //$queryRaw('SELECT * FROM tbl_aluno') - Executa diretamente o script dentro do método
@@ -126,8 +152,7 @@ const updateMatricula = async function (dadosMatricula) {
 
     let sql = `update tbl_matricula set 
             numero = '${dadosMatricula.numero}',
-            id_aluno = ${dadosMatricula.id_aluno},
-            id_curso = ${dadosMatricula.id_curso}
+            id_aluno = ${dadosMatricula.id_aluno}
         where id = ${dadosMatricula.id}
     `
 
@@ -172,5 +197,6 @@ module.exports = {
     deleteMatricula,
     insertMatricula,
     updateMatricula,
-    selectLastId
+    selectLastId,
+    selectMatriculaByTurma
 }

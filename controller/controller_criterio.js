@@ -10,6 +10,7 @@ var messages = require('./module/config.js');
 
 //Import do arquivo DAO para acessar dados do aluno no BD
 let criterioDAO = require('../model/DAO/criterioDAO.js')
+let resultadoDAO = require('../model/DAO/resultadosDAO.js')
 
 const getCriterios = async function () {
     let dadosCriteriosJSON = {}
@@ -118,9 +119,6 @@ const inserirNovoCriterio = async function (dadosCriterio) {
         return messages.ERROR_INVALID_ID
     } else {
         //Adiciona o ID do aluno no JSON dos dados
-
-
-
         let inserirCriterio = await criterioDAO.insertCriterio(dadosCriterio)
 
         if (inserirCriterio) {
@@ -128,8 +126,9 @@ const inserirNovoCriterio = async function (dadosCriterio) {
 
             //Valida se o BD inseriu corretamente
             if (resultdadosCriterios) {
-
+                
                 let novoCriterio = await criterioDAO.selectLastIdCriterio()
+                resultadoDAO.insertResultado(novoCriterio.id);
 
                 let dadosCriterioJSon = {}
                 dadosCriterioJSon.status = messages.SUCCESS_CREATED_ITEM.status

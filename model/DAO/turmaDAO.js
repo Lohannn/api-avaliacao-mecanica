@@ -107,12 +107,12 @@ const selectLastId = async function () {
     //retorna o ultimo id inserido no banco de dados
 }
 
-const updateTurma = async function (dadosTurma) {
+const updateTurma = async function (dadosTurma, id_turma) {
     let sql = `update tbl_turma set 
             nome = '${dadosTurma.nome}',
             sigla = '${dadosTurma.sigla}',
             id_semestre = ${dadosTurma.id_semestre}
-        where id = ${dadosTurma.id}
+        where id = ${id_turma}
     `
 
     //Executa o scriptSQL no BD

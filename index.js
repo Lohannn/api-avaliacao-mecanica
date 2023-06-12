@@ -17,6 +17,7 @@ var controllerAvaliacao = require('./controller/controller_avaliacao.js')
 var controllerCriterio = require('./controller/controller_criterio.js')
 var controllerMatricula = require('./controller/controller_matricula.js')
 var controllerDesempenho = require('./controller/controller_desempenho.js')
+var controllerResultado = require('./controller/controller_resultado.js')
 
 //Import do arquivo que possibilitará usar as mensagens de erro.
 var messages = require('./controller/module/config.js');
@@ -88,23 +89,31 @@ app.get('/v1/senai/admin/:senha', cors(), async function (request, response) {
 
 //Endpoint para retornar todos os alunos, retornar alunos pelo nome .
 app.get('/v1/senai/matriculas', cors(), async (request, response) => {
-    let matricula = request.query.matricula;
+    let matricula = request.query.matricula
+    let turma = request.query.turma
 
     if (matricula != undefined) {
         //Recebe os dados do controller
-        let dadosMateria = await controllerMatricula.getMatriculaByNumber(matricula);
+        let dadosMatricula = await controllerMatricula.getMatriculaByNumber(matricula);
 
         //Valida se existe registro
-        response.json(dadosMateria)
-        response.status(dadosMateria.status)
+        response.json(dadosMatricula)
+        response.status(dadosMatricula.status)
+    } else if (turma != undefined) {
+        //Recebe os dados do controller
+        let dadosMatricula = await controllerMatricula.getMatriculaByTurma(turma);
+
+        //Valida se existe registro
+        response.json(dadosMatricula)
+        response.status(dadosMatricula.status)
     } else {
 
         //Recebe os dados do controller
-        let dadosMateria = await controllerMatricula.getMatricula();
+        let dadosMatricula = await controllerMatricula.getMatricula();
 
         //Valida se existe registro
-        response.json(dadosMateria)
-        response.status(dadosMateria.status)
+        response.json(dadosMatricula)
+        response.status(dadosMatricula.status)
     }
 })
 
@@ -934,6 +943,64 @@ app.get('/v1/senai/nivel/:id', cors(), async (request, response) => {
 
     response.status(dadosDesempenho.status)
     response.json(dadosDesempenho)
+})
+
+/*************************************************************************************
+ * Objetibo: API de controle de Resultados.
+ * Autor: Lohannes da Silva Costa
+ * Data: 12/06/2023
+ * Versão: 1.0
+ *************************************************************************************/
+
+//Endpoint para retornar todos os Níveis.
+
+//Endpoint para retornar um Resultado pelo ID.
+app.get('/v1/senai/resultado/:id', cors(), async (request, response) => {
+    let dadosResultado = await controllerResultado.getResultadoByID()
+
+    response.status(dadosResultado.status)
+    response.json(dadosResultado)
+})
+
+//Endpoint para criar um Critério.
+app.post('/v1/senai/resultado', cors(), bodyParserJSON, async function (request, response) {
+    let contentType = request.headers['content-type']
+
+    //Validação para receber dados apenas no formato JSON
+    if (String(contentType).toLowerCase() == 'application/json') {
+
+        let dadosBody = request.body
+
+        let dadosResultado = await controllerResultado.inserirNovoResultado(dadosBody)
+
+        response.status(dadosResultado.status)
+        response.json(dadosResultado)
+    } else {
+        response.status(messages.ERROR_INVALID_CONTENT_TYPE.status)
+        response.json(messages.ERROR_INVALID_CONTENT_TYPE.message)
+    }
+})
+
+//Endpoint para atualizar um Critério pelo ID.
+app.put('/v1/senai/resultado/:id', cors(), bodyParserJSON, async function (request, response) {
+    let contentType = request.headers['content-type']
+
+    //Validação para receber dados apenas no formato JSON
+    if (String(contentType).toLowerCase() == 'application/json') {
+        //Recebe o ID do aluno pelo parametro
+        let id = request.params.id;
+
+        //Recebe os dados dos aluno encaminhado no corpo da requisição
+        let dadosBody = request.body
+
+        let dadosResultado = await controllerResultado.atualizarResultado(dadosBody, id)
+
+        response.status(dadosResultado.status)
+        response.json(dadosResultado)
+    } else {
+        response.status(messages.ERROR_INVALID_CONTENT_TYPE.status)
+        response.json(messages.ERROR_INVALID_CONTENT_TYPE.message)
+    }
 })
 
 app.listen(8080, function () {

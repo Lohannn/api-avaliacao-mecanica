@@ -5,6 +5,8 @@
 //  * Versão: 1.0
 //  **************************************************************************************/
 
+const criterioDAO = require('../model/DAO/criterioDAO')
+
 //Import do arquivo de configuração das variáveis, constantes e globais.
 var messages = require('./module/config.js');
 
@@ -96,7 +98,6 @@ const getAvaliacaoPeloNome = async function (nomeAvaliacao) {
 const inserirNovaAvaliacao = async function (dadosAvaliacao) {
     //Validaçao de campos obrigatorios e limite de cracteres
     if (dadosAvaliacao.nome == '' || dadosAvaliacao.nome == undefined || dadosAvaliacao.nome.length > 100
-        || dadosAvaliacao.duracao == '' || dadosAvaliacao.duracao == undefined
         || dadosAvaliacao.id_professor == '' || dadosAvaliacao.id_professor == undefined || isNaN(dadosAvaliacao.id_professor)
         || dadosAvaliacao.id_turma == '' || dadosAvaliacao.id_turma == undefined || isNaN(dadosAvaliacao.id_turma)
     ) {
@@ -123,7 +124,6 @@ const inserirNovaAvaliacao = async function (dadosAvaliacao) {
 
 const atualizarAvaliacao = async function (dadosAvaliacao, id) {
     if (dadosAvaliacao.nome == '' || dadosAvaliacao.nome == undefined || dadosAvaliacao.nome.length > 100
-        || dadosAvaliacao.duracao == '' || dadosAvaliacao.duracao == undefined
         || dadosAvaliacao.id_professor == '' || dadosAvaliacao.id_professor == undefined || isNaN(dadosAvaliacao.id_professor)
         || dadosAvaliacao.id_turma == '' || dadosAvaliacao.id_turma == undefined || isNaN(dadosAvaliacao.id_turma)
     ) {

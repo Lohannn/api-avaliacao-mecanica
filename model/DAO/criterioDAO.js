@@ -14,10 +14,7 @@ var prisma = new PrismaClient()
 const selectAllCriterios = async function () {
 
     //scriptSQL para buscar todos os itens do BD
-    let sql = `select tbl_criterio.id as id, tbl_criterio.descricao as criterio , tbl_criterio.observacao, tbl_avaliacao.nome as tarefa, tbl_avaliacao.duracao, tbl_avaliacao.somativa
-    from tbl_criterio
-        inner join tbl_avaliacao
-            on tbl_criterio.id_avaliacao = tbl_avaliacao.idAvaliacao;`
+    let sql = `select tbl_criterio.id as id, tbl_criterio.descricao as criterio , tbl_criterio.observacao from tbl_criterio`
 
     //$queryRawUnsafe(sql) - Permite interpretar uma variável como sendo um scriptSQL
     //$queryRaw('SELECT * FROM tbl_aluno') - Executa diretamente o script dentro do método
@@ -72,8 +69,6 @@ const updateCriterio = async function(dadosCriterio){
     let sql = `update tbl_criterio set 
             descricao = '${dadosCriterio.descricao}',
             observacao = '${dadosCriterio.observacao}',
-            id_verificacao = ${dadosCriterio.id_verificacao},
-            id_resultado = ${dadosCriterio.id_resultado},
             id_avaliacao = ${dadosCriterio.id_avaliacao}
         where id = ${dadosCriterio.id}
     `
