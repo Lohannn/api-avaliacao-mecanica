@@ -130,6 +130,8 @@ const deleteCriterio = async function(idCriterio){
     }
 }
 
+
+
 module.exports = {
     selectAllCriterios,
     selectByIdCriterio,

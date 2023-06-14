@@ -64,7 +64,7 @@ const selectMatriculaByNumber = async function (rm) {
 
 }
 
-const selectMatriculaByTurma = async function (siglaTurma) {
+const selectMatriculaByTurma = async function (siglaTurma, semestre) {
 
     //scriptSQL para buscar todos os itens do BD
     let sql = `select tbl_matricula.id, tbl_matricula.numero as matricula, 
@@ -74,10 +74,10 @@ const selectMatriculaByTurma = async function (siglaTurma) {
                     inner join tbl_turma
                         on tbl_matricula.id_turma = tbl_turma.id
                     inner join tbl_aluno
-                        on tbl_matricula.id_aluno = tbl_aluno.id,
-                    inner join tbl_turma 
-                        on tbl_matricula.id_turma = tbl_turma.id
-                where tbl_turma.sigla = '${siglaTurma}'`
+                        on tbl_matricula.id_aluno = tbl_aluno.id
+                    inner join tbl_semestre
+                        on tbl_semestre.idSemestre = tbl_turma.id_semestre
+                where tbl_turma.sigla = '${siglaTurma}' and `
 
     //$queryRawUnsafe(sql) - Permite interpretar uma variável como sendo um scriptSQL
     //$queryRaw('SELECT * FROM tbl_aluno') - Executa diretamente o script dentro do método

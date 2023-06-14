@@ -398,6 +398,7 @@ app.delete('/v1/senai/professor/:id', cors(), async function (request, response)
 //Endpoint para retornar todos as turmas.
 app.get('/v1/senai/turmas', cors(), async (request, response) => {
     let periodo = request.query.periodo
+    let semestre = request.query.periodo
 
     if (periodo != undefined) {
         let dadosTurma = await controllerTurma.getTurmaByPeriodo(periodo)
