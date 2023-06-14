@@ -121,8 +121,7 @@ const inserirNovaAvaliacao = async function (dadosAvaliacao) {
             //novaAvaliacao essa avaliação tem um id, que é o que preciso passar na tabela intermediária
             let passIdAvaliacao = await avaliacaoDAO.selectByIdAvaliacao(novaAvaliacao.idAvaliacao)
             //novaAvaliacao essa avaliaçao também possui uma turma, que é o que a matricula vai ter em igual, a matricula e a avaliação serao da mesma turma
-            let checkTurma = await turmaDAO.selectTurmaById(novaAvaliacao.id_turma)
-            let checkMatriculaTurma = await matriculaDAO.selectMatriculaByTurma(checkTurma.id_turma)
+            
             // e é isso que preciso passar na tabela intermediaria, o id das matriculas que estão na mesma turma dessa avaliação
 
             
