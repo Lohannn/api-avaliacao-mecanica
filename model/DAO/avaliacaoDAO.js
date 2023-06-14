@@ -24,7 +24,7 @@ const selectAllAvaliacoes = async function () {
     tbl_criterio.id as id_criterio, tbl_criterio.critico, tbl_criterio.descricao, tbl_criterio.observacao, 
     tbl_verificacao_matricula.id as resultado_id, tbl_verificacao_matricula.resultado_desejado, tbl_verificacao_matricula.resultado_obtido, tbl_verificacao_matricula.verificacao_aluno, tbl_verificacao_matricula.confirmacao_professor
     from tbl_avaliacao 
-        inner join tbl_criterio on tbl_criterio.id_avaliacao = tbl_avaliacao.idAvaliacao
+        right join tbl_criterio on tbl_criterio.id_avaliacao = tbl_avaliacao.idAvaliacao
         inner join tbl_verificacao_matricula on tbl_verificacao_matricula.id_criterio = tbl_criterio.id
         inner join tbl_professor on tbl_professor.idProfessor = tbl_avaliacao.id_professor
         inner join tbl_turma on tbl_turma.id = tbl_avaliacao.id_turma
