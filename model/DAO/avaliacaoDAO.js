@@ -13,15 +13,22 @@ var prisma = new PrismaClient()
 const selectAllAvaliacoes = async function () {
 
     //scriptSQL para buscar todos os itens do BD
-    let sql = `SELECT tbl_avaliacao.idAvaliacao as id_avaliacao, tbl_avaliacao.nome, 
-    tbl_avaliacao.somativa, tbl_avaliacao.concluida,
-    tbl_professor.nome as professor,
-    tbl_turma.nome as turma
-    from tbl_avaliacao
-       inner join tbl_professor
-           on tbl_avaliacao.id_professor = tbl_professor.idProfessor
-       inner join tbl_turma
-           on tbl_avaliacao.id_turma = tbl_turma.id`
+    let sql = `SELECT tbl_avaliacao.idAvaliacao as id_avaliacao, tbl_avaliacao.nome as nome_avaliacao, 
+    (IFNULL((SELECT (CAST(COUNT(*) as CHAR) + 0) FROM tbl_verificacao_matricula WHERE confirmacao_professor = 'S' AND id_criterio IN (SELECT id FROM tbl_criterio WHERE critico = 1)), 0)) as criticos_acertados, 
+    (IFNULL((SELECT (CAST(COUNT(*) as CHAR) + 0) FROM tbl_verificacao_matricula WHERE confirmacao_professor = 'S' AND id_criterio IN (SELECT id FROM tbl_criterio WHERE critico = 0)), 0)) as desejados_acertados,
+    (SELECT (CAST(COUNT(*) as CHAR) + 0) FROM tbl_criterio WHERE critico = 1) as quantidade_criticos,
+    (SELECT (CAST(COUNT(*) as CHAR) + 0) FROM tbl_criterio WHERE critico = 0) as quantidade_desejados,
+    tbl_avaliacao.somativa, tbl_avaliacao.concluida, 
+    tbl_professor.nome as professor, 
+    concat(tbl_turma.nome, " (", tbl_turma.sigla, ")") as turma, 
+    tbl_criterio.id as id_criterio, tbl_criterio.critico, tbl_criterio.descricao, tbl_criterio.observacao, 
+    tbl_verificacao_matricula.id as resultado_id, tbl_verificacao_matricula.resultado_desejado, tbl_verificacao_matricula.resultado_obtido, tbl_verificacao_matricula.verificacao_aluno, tbl_verificacao_matricula.confirmacao_professor
+    from tbl_avaliacao 
+        inner join tbl_criterio on tbl_criterio.id_avaliacao = tbl_avaliacao.idAvaliacao
+        inner join tbl_verificacao_matricula on tbl_verificacao_matricula.id_criterio = tbl_criterio.id
+        inner join tbl_professor on tbl_professor.idProfessor = tbl_avaliacao.id_professor
+        inner join tbl_turma on tbl_turma.id = tbl_avaliacao.id_turma
+    GROUP BY id_avaliacao, id_criterio, resultado_id;`
 
     //$queryRawUnsafe(sql) - Permite interpretar uma variável como sendo um scriptSQL
     //$queryRaw('SELECT * FROM tbl_aluno') - Executa diretamente o script dentro do método
@@ -31,7 +38,71 @@ const selectAllAvaliacoes = async function () {
 
     //Valida se o BD retornou algum registro
     if (rsAvaliacao.length > 0) {
-        return rsAvaliacao
+        let avaliacao = {}
+        let criterios = []
+        let resultados = []
+        let set = Array.from(new Set(rsAvaliacao))
+
+        avaliacao.id = 0
+        avaliacao.criterio_id = 0
+        avaliacao.resultado_id = 0
+
+        set.forEach(tarefa => {
+            if (avaliacao.id != tarefa.id_avaliacao) {
+                avaliacao.id = tarefa.id_avaliacao
+                avaliacao.nome = tarefa.nome_avaliacao
+                avaliacao.acertos_criticos = tarefa.criticos_acertados
+                avaliacao.acertos_desejados = tarefa.desejados_acertados
+                avaliacao.quantidade_criticos = tarefa.quantidade_criticos
+                avaliacao.quantidade_desejados = tarefa.quantidade_desejados
+
+                if (tarefa.somativa == 1) {
+                    avaliacao.somativa = true
+                } else if (tarefa.somativa == 1) {
+                    avaliacao.somativa = false
+                }
+
+                avaliacao.concluida = tarefa.concluida
+                avaliacao.professor = tarefa.professor
+                avaliacao.turma = tarefa.turma
+            }
+
+            if (avaliacao.resultado_id != tarefa.resultado_id) {
+                let resultado = {}
+                avaliacao.resultado_id = tarefa.resultado_id
+                resultado.id = tarefa.resultado_id
+                resultado.verificacao_aluno = tarefa.resultado_desejado
+                resultado.verificacao_aluno = tarefa.resultado_obtido
+                resultado.verificacao_aluno = tarefa.verificacao_aluno
+                resultado.confirmacao_professor = tarefa.confirmacao_professor
+
+                resultados.push(resultado)
+            }
+
+            if (avaliacao.criterio_id !== tarefa.id_criterio) {
+                avaliacao.criterio_id = tarefa.id_criterio
+                let criterio = {}
+                criterio.id = tarefa.id_criterio
+
+                if (tarefa.critico == 1) {
+                    criterio.critico = true
+                } else if (tarefa.critico == 1) {
+                    criterio.critico = false
+                }
+
+                criterio.descricao = tarefa.descricao
+                criterio.observcao = tarefa.observacao
+                criterio.resultados = resultados
+
+                criterios.push(criterio)
+            }
+            avaliacao.criterios = criterios
+        });
+
+        delete avaliacao.criterio_id
+        delete avaliacao.resultado_id
+
+        return avaliacao;
     } else {
         return false
     }
@@ -40,8 +111,23 @@ const selectAllAvaliacoes = async function () {
 
 const selectAllAvaliacoesByTurma = async function (idTurma) {
     //scriptSQL para buscar todos os itens do BD
-    let sql = `SELECT tbl_avaliacao.idAvaliacao as id_avaliacao, tbl_avaliacao.nome, tbl_avaliacao.somativa, tbl_avaliacao.concluida
-    from tbl_avaliacao where id_turma = ${idTurma}`
+    let sql = `SELECT tbl_avaliacao.idAvaliacao as id_avaliacao, tbl_avaliacao.nome as nome_avaliacao, 
+    (IFNULL((SELECT (CAST(COUNT(*) as CHAR) + 0) FROM tbl_verificacao_matricula WHERE confirmacao_professor = 'S' AND id_criterio IN (SELECT id FROM tbl_criterio WHERE critico = 1)), 0)) as criticos_acertados, 
+    (IFNULL((SELECT (CAST(COUNT(*) as CHAR) + 0) FROM tbl_verificacao_matricula WHERE confirmacao_professor = 'S' AND id_criterio IN (SELECT id FROM tbl_criterio WHERE critico = 0)), 0)) as desejados_acertados,
+    (SELECT (CAST(COUNT(*) as CHAR) + 0) FROM tbl_criterio WHERE critico = 1 AND id_turma = ${idTurma}) as quantidade_criticos,
+    (SELECT (CAST(COUNT(*) as CHAR) + 0) FROM tbl_criterio WHERE critico = 0 AND id_turma = ${idTurma}) as quantidade_desejados,
+    tbl_avaliacao.somativa, tbl_avaliacao.concluida, 
+    tbl_professor.nome as professor, 
+    concat(tbl_turma.nome, " (", tbl_turma.sigla, ")") as turma, 
+    tbl_criterio.id as id_criterio, tbl_criterio.critico, tbl_criterio.descricao, tbl_criterio.observacao, 
+    tbl_verificacao_matricula.id as resultado_id, tbl_verificacao_matricula.resultado_desejado, tbl_verificacao_matricula.resultado_obtido, tbl_verificacao_matricula.verificacao_aluno, tbl_verificacao_matricula.confirmacao_professor
+    from tbl_avaliacao 
+        inner join tbl_criterio on tbl_criterio.id_avaliacao = tbl_avaliacao.idAvaliacao
+        inner join tbl_verificacao_matricula on tbl_verificacao_matricula.id_criterio = tbl_criterio.id
+        inner join tbl_professor on tbl_professor.idProfessor = tbl_avaliacao.id_professor
+        inner join tbl_turma on tbl_turma.id = tbl_avaliacao.id_turma
+    where id_turma = ${idTurma}
+    GROUP BY id_avaliacao, id_criterio, resultado_id;`
 
     //$queryRawUnsafe(sql) - Permite interpretar uma variável como sendo um scriptSQL
     //$queryRaw('SELECT * FROM tbl_aluno') - Executa diretamente o script dentro do método
@@ -49,7 +135,71 @@ const selectAllAvaliacoesByTurma = async function (idTurma) {
 
     //Valida se o BD retornou algum registro
     if (rsAvaliacao.length > 0) {
-        return rsAvaliacao
+        let avaliacao = {}
+        let criterios = []
+        let resultados = []
+        let set = Array.from(new Set(rsAvaliacao))
+
+        avaliacao.id = 0
+        avaliacao.criterio_id = 0
+        avaliacao.resultado_id = 0
+
+        set.forEach(tarefa => {
+            if (avaliacao.id != tarefa.id_avaliacao) {
+                avaliacao.id = tarefa.id_avaliacao
+                avaliacao.nome = tarefa.nome_avaliacao
+                avaliacao.acertos_criticos = tarefa.criticos_acertados
+                avaliacao.acertos_desejados = tarefa.desejados_acertados
+                avaliacao.quantidade_criticos = tarefa.quantidade_criticos
+                avaliacao.quantidade_desejados = tarefa.quantidade_desejados
+
+                if (tarefa.somativa == 1) {
+                    avaliacao.somativa = true
+                } else if (tarefa.somativa == 1) {
+                    avaliacao.somativa = false
+                }
+
+                avaliacao.concluida = tarefa.concluida
+                avaliacao.professor = tarefa.professor
+                avaliacao.turma = tarefa.turma
+            }
+
+            if (avaliacao.resultado_id != tarefa.resultado_id) {
+                let resultado = {}
+                avaliacao.resultado_id = tarefa.resultado_id
+                resultado.id = tarefa.resultado_id
+                resultado.verificacao_aluno = tarefa.resultado_desejado
+                resultado.verificacao_aluno = tarefa.resultado_obtido
+                resultado.verificacao_aluno = tarefa.verificacao_aluno
+                resultado.confirmacao_professor = tarefa.confirmacao_professor
+
+                resultados.push(resultado)
+            }
+
+            if (avaliacao.criterio_id !== tarefa.id_criterio) {
+                avaliacao.criterio_id = tarefa.id_criterio
+                let criterio = {}
+                criterio.id = tarefa.id_criterio
+
+                if (tarefa.critico == 1) {
+                    criterio.critico = true
+                } else if (tarefa.critico == 1) {
+                    criterio.critico = false
+                }
+
+                criterio.descricao = tarefa.descricao
+                criterio.observcao = tarefa.observacao
+                criterio.resultados = resultados
+
+                criterios.push(criterio)
+            }
+            avaliacao.criterios = criterios
+        });
+
+        delete avaliacao.criterio_id
+        delete avaliacao.resultado_id
+
+        return avaliacao;
     } else {
         return false
     }
@@ -59,8 +209,8 @@ const selectByIdAvaliacao = async function (idAvaliacao) {
     let sql = `SELECT tbl_avaliacao.idAvaliacao as id_avaliacao, tbl_avaliacao.nome as nome_avaliacao, 
     (IFNULL((SELECT (CAST(COUNT(*) as CHAR) + 0) FROM tbl_verificacao_matricula WHERE confirmacao_professor = 'S' AND id_criterio IN (SELECT id FROM tbl_criterio WHERE critico = 1)), 0)) as criticos_acertados, 
     (IFNULL((SELECT (CAST(COUNT(*) as CHAR) + 0) FROM tbl_verificacao_matricula WHERE confirmacao_professor = 'S' AND id_criterio IN (SELECT id FROM tbl_criterio WHERE critico = 0)), 0)) as desejados_acertados,
-    (SELECT (CAST(COUNT(*) as CHAR) + 0) from tbl_avaliacao where tbl_criterio.critico = 1) as quantidade_criticos,
-    (SELECT (CAST(COUNT(*) as CHAR) + 0) from tbl_avaliacao where tbl_criterio.critico = 0) as quantidade_desejados,
+    (SELECT (CAST(COUNT(*) as CHAR) + 0) FROM tbl_criterio WHERE critico = 1 AND id_avaliacao = ${idAvaliacao}) as quantidade_criticos,
+    (SELECT (CAST(COUNT(*) as CHAR) + 0) FROM tbl_criterio WHERE critico = 0 AND id_avaliacao = ${idAvaliacao}) as quantidade_desejados,
     tbl_avaliacao.somativa, tbl_avaliacao.concluida, 
     tbl_professor.nome as professor, 
     concat(tbl_turma.nome, " (", tbl_turma.sigla, ")") as turma, 
@@ -79,63 +229,71 @@ const selectByIdAvaliacao = async function (idAvaliacao) {
     // console.log(rsAvaliacao);
 
     if (rsAvaliacao.length > 0) {
-        // let avaliacao = {}
-        // let criterios = []
-        // let set = Array.from(new Set(rsAvaliacao))
+        let avaliacao = {}
+        let criterios = []
+        let resultados = []
+        let set = Array.from(new Set(rsAvaliacao))
 
-        // avaliacao.id = 0
-        // avaliacao.criterio_id = 0
+        avaliacao.id = 0
+        avaliacao.criterio_id = 0
+        avaliacao.resultado_id = 0
 
-        // console.log(set);
+        set.forEach(tarefa => {
+            if (avaliacao.id != tarefa.id_avaliacao) {
+                avaliacao.id = tarefa.id_avaliacao
+                avaliacao.nome = tarefa.nome_avaliacao
+                avaliacao.acertos_criticos = tarefa.criticos_acertados
+                avaliacao.acertos_desejados = tarefa.desejados_acertados
+                avaliacao.quantidade_criticos = tarefa.quantidade_criticos
+                avaliacao.quantidade_desejados = tarefa.quantidade_desejados
 
-        // set.forEach(tarefa => {
-        //     if (avaliacao.id != tarefa.id_avaliacao) {
-        //         avaliacao.id = tarefa.id_avaliacao
-        //         avaliacao.nome = tarefa.nome_avaliacao
-        //         avaliacao.duracao = tarefa.duracao
-        //         avaliacao.acertos_criticos = tarefa.criticos_acertados
-        //         avaliacao.acertos_desejados = tarefa.desejados_acertados
+                if (tarefa.somativa == 1) {
+                    avaliacao.somativa = true
+                } else if (tarefa.somativa == 1) {
+                    avaliacao.somativa = false
+                }
 
-        //         if (tarefa.somativa == 1) {
-        //             avaliacao.somativa = true
-        //         } else if (tarefa.somativa == 1) {
-        //             avaliacao.somativa = false
-        //         }
+                avaliacao.concluida = tarefa.concluida
+                avaliacao.professor = tarefa.professor
+                avaliacao.turma = tarefa.turma
+            }
 
-        //         avaliacao.concluida = tarefa.concluida
-        //         avaliacao.professor = tarefa.professor
-        //         avaliacao.turma = tarefa.turma
-        //     }
+            if (avaliacao.resultado_id != tarefa.resultado_id) {
+                let resultado = {}
+                avaliacao.resultado_id = tarefa.resultado_id
+                resultado.id = tarefa.resultado_id
+                resultado.verificacao_aluno = tarefa.resultado_desejado
+                resultado.verificacao_aluno = tarefa.resultado_obtido
+                resultado.verificacao_aluno = tarefa.verificacao_aluno
+                resultado.confirmacao_professor = tarefa.confirmacao_professor
 
-        //     if (avaliacao.id_criterio != tarefa.id_criterio) {
-        //         let verificacao = {}
-        //         verificacao.id = tarefa.verificacao_id
-        //         verificacao.verificacao_aluno = tarefa.verificacao_aluno
-        //         verificacao.confirmacao_professor = tarefa.confirmacao_professor
+                resultados.push(resultado)
+            }
 
-        //         verificacoes.push(verificacao)
-        //     }
+            if (avaliacao.criterio_id !== tarefa.id_criterio) {
+                avaliacao.criterio_id = tarefa.id_criterio
+                let criterio = {}
+                criterio.id = tarefa.id_criterio
 
-        //     if (avaliacao.id_resultado != tarefa.id_resultado) {
-        //         let resultado = {}
-        //         resultado.id = tarefa.resultado_id
-        //         resultado.resultado_desejado = tarefa.resultado_desejado
-        //         resultado.resultado_obtido = tarefa.resultado_obtido
+                if (tarefa.critico == 1) {
+                    criterio.critico = true
+                } else if (tarefa.critico == 1) {
+                    criterio.critico = false
+                }
 
-        //         resultados.push(resultado)
-        //     }
+                criterio.descricao = tarefa.descricao
+                criterio.observcao = tarefa.observacao
+                criterio.resultados = resultados
 
-        //     if (avaliacao.id_criterio != tarefa.id_criterio) {
-        //         let criterio = {}
-        //         criterio.id = tarefa.id_criterio
-        //         criterio.descricao = tarefa.descricao
-        //         criterio.observacao = tarefa.observacao
+                criterios.push(criterio)
+            }
+            avaliacao.criterios = criterios
+        });
 
-        //         criterios.push(criterio)
-        //     }
-        // });
+        delete avaliacao.criterio_id
+        delete avaliacao.resultado_id
 
-        return rsAvaliacao;
+        return avaliacao;
     } else {
         return false
     }
@@ -222,7 +380,7 @@ const insertAvaliacao = async function (dadosAvaliacao) {
     }
 }
 
-const insertIntoTableMatriculaAvaliacao = async function(idMatricula, idAvaliacao){
+const insertIntoTableMatriculaAvaliacao = async function (idMatricula, idAvaliacao) {
     let sql = `insert into tbl_matricula_avaliacao
     (
         id_matricula,

@@ -13,6 +13,7 @@ var messages = require('./module/config.js');
 //Import do arquivo DAO para acessar dados do aluno no BD
 let avaliacaoDAO = require('../model/DAO/avaliacaoDAO.js')
 let matriculaDAO = require('../model/DAO/matriculaDAO.js')
+let turmaDAO =  require('../model/DAO/turmaDAO.js')
 
 const getAvaliacoes = async function () {
     let dadosAvaliacaoJSON = {}
@@ -117,13 +118,21 @@ const inserirNovaAvaliacao = async function (dadosAvaliacao) {
             dadosAvaliacaoJSon.status = messages.SUCCESS_CREATED_ITEM.status
             dadosAvaliacaoJSon.avaliacao = novaAvaliacao
 
+            //novaAvaliacao essa avaliação tem um id, que é o que preciso passar na tabela intermediária
+            let passIdAvaliacao = await avaliacaoDAO.selectByIdAvaliacao(novaAvaliacao.idAvaliacao)
+            //novaAvaliacao essa avaliaçao também possui uma turma, que é o que a matricula vai ter em igual, a matricula e a avaliação serao da mesma turma
+            let checkTurma = await turmaDAO.selectTurmaById(novaAvaliacao.id_turma)
+            let checkMatriculaTurma = await matriculaDAO.selectMatriculaByTurma(checkTurma.id_turma)
+            // e é isso que preciso passar na tabela intermediaria, o id das matriculas que estão na mesma turma dessa avaliação
+
+            
+
             return dadosAvaliacaoJSon
         } else {
             return messages.ERROR_INTERNAL_SERVER
         }
     }
 }
-
 
 const atualizarAvaliacao = async function (dadosAvaliacao, id) {
     if (dadosAvaliacao.nome == '' || dadosAvaliacao.nome == undefined || dadosAvaliacao.nome.length > 100
