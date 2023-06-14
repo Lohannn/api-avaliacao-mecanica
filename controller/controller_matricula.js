@@ -89,6 +89,8 @@ const inserirNovaMatricula = async function (dadosMatricula) {
     //Validaçao de campos obrigatorios e limite de cracteres
     if (dadosMatricula.numero == '' || dadosMatricula.numero == undefined || dadosMatricula.numero.length > 100 
         || dadosMatricula.id_aluno == '' || dadosMatricula.id_aluno == undefined
+        || dadosMatricula.id_curso == '' || dadosMatricula.id_curso == undefined
+        || dadosMatricula.id_turma == '' || dadosMatricula.id_turma == undefined
     ) {
         return messages.ERROR_REQUIRED_FIELDS
     } else {
@@ -115,6 +117,8 @@ const atualizarMatricula = async function (dadosMatricula, id) {
     //Validaçao de campos obrigatorios e limite de cracteres
     if (dadosMatricula.numero == '' || dadosMatricula.numero == undefined || dadosMatricula.numero.length > 100
     || dadosMatricula.id_aluno == '' || dadosMatricula.id_aluno == undefined
+    || dadosMatricula.id_curso == '' || dadosMatricula.id_curso == undefined
+    || dadosMatricula.id_turma == '' || dadosMatricula.id_turma == undefined
     ) {
         return messages.ERROR_REQUIRED_FIELDS
     } else if (id == null || id == undefined || isNaN(id)) {

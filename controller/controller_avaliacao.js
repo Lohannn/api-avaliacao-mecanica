@@ -12,6 +12,7 @@ var messages = require('./module/config.js');
 
 //Import do arquivo DAO para acessar dados do aluno no BD
 let avaliacaoDAO = require('../model/DAO/avaliacaoDAO.js')
+let matriculaDAO = require('../model/DAO/matriculaDAO.js')
 
 const getAvaliacoes = async function () {
     let dadosAvaliacaoJSON = {}
@@ -123,6 +124,7 @@ const inserirNovaAvaliacao = async function (dadosAvaliacao) {
     }
 }
 
+
 const atualizarAvaliacao = async function (dadosAvaliacao, id) {
     if (dadosAvaliacao.nome == '' || dadosAvaliacao.nome == undefined || dadosAvaliacao.nome.length > 100
         || dadosAvaliacao.id_professor == '' || dadosAvaliacao.id_professor == undefined || isNaN(dadosAvaliacao.id_professor)
@@ -182,6 +184,17 @@ const deletarAvaliacao = async function (id) {
 
     }
 }
+
+// const sendAvaliacaoParaAlunos = async function(id_matricula, id_avaliacao, dadosAvaliacao){
+    
+
+//     let checkInsertAvaliacao = await inserirNovaAvaliacao(dadosAvaliacao)
+
+//     if (checkInsertAvaliacao){
+//         let checkLastIdAvaliacao = avaliacaoDAO.selectLastIdAvaliacao()
+//     }
+
+// }
 
 
 module.exports = {

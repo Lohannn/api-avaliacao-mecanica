@@ -48,6 +48,26 @@ const getTurmaById = async function (id) {
     }
 }
 
+const getTurmaByPeriodo = async function (periodoSigla) {
+    if (periodoSigla == '' || periodoSigla == undefined) {
+        return messages.ERROR_REQUIRED_FIELDS
+    } else {
+
+        let dadosTurmasJSON = {};
+
+        let dadosTurma = await turmaDAO.selectTurmaByPeriodo(periodoSigla)
+
+        if (dadosTurma) {
+            //criando um JSon com o atributo alunos, para encaminhar um array de alunos
+            dadosTurmasJSON.status = messages.SUCCESS_REQUEST.status
+            dadosTurmasJSON.turma = dadosTurma
+            return dadosTurmasJSON
+        } else {
+            return messages.ERROR_NOT_FOUND
+        }
+    }
+}
+
 const inserirNovaTurma = async function (dadosTurma, idPeriodo, idProfessor) {
     //Validaçao de campos obrigatorios e limite de cracteres
     if (dadosTurma.nome == '' || dadosTurma.nome == undefined || dadosTurma.nome.length > 100
@@ -150,5 +170,6 @@ module.exports = {
     getTurmas,
     getTurmaById,
     atualizarTurma,
-    deletarTurma
+    deletarTurma,
+    getTurmaByPeriodo
 }

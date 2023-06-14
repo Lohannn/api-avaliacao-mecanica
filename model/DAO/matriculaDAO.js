@@ -14,12 +14,16 @@ var prisma = new PrismaClient()
 const selectAllMatriculas = async function () {
 
     //scriptSQL para buscar todos os itens do BD
-    let sql = `SELECT tbl_matricula.numero as matricula, tbl_aluno.nome as aluno, tbl_aluno.email
-	from tbl_matricula
-		inner join tbl_curso 
-			on tbl_curso.id = tbl_matricula.id_curso
-        inner join tbl_aluno
-			on tbl_aluno.id = tbl_matricula.id_aluno`
+    let sql = `SELECT tbl_matricula.numero as matricula, tbl_aluno.nome as aluno, tbl_aluno.email,
+    tbl_curso.nome_curso as curso,
+    tbl_turma.nome as turma
+        from tbl_matricula
+            inner join tbl_curso 
+                on tbl_curso.id = tbl_matricula.id_curso
+            inner join tbl_aluno
+                on tbl_aluno.id = tbl_matricula.id_aluno
+            inner join tbl_turma 
+                on tbl_matricula.id_turma = tbl_turma.id`
 
     //$queryRawUnsafe(sql) - Permite interpretar uma variável como sendo um scriptSQL
     //$queryRaw('SELECT * FROM tbl_aluno') - Executa diretamente o script dentro do método
@@ -42,7 +46,9 @@ const selectMatriculaByNumber = async function (rm) {
 		inner join tbl_curso 
 			on tbl_curso.id = tbl_matricula.id_curso
         inner join tbl_aluno
-			on tbl_aluno.id = tbl_matricula.id_aluno
+			on tbl_aluno.id = tbl_matricula.id_aluno,
+            inner join tbl_turma 
+                on tbl_matricula.id_turma = tbl_turma.id
             where tbl_matricula.numero like '%${rm}%';`
 
     //$queryRawUnsafe(sql) - Permite interpretar uma variável como sendo um scriptSQL
@@ -68,7 +74,9 @@ const selectMatriculaByTurma = async function (siglaTurma) {
                     inner join tbl_turma
                         on tbl_matricula.id_turma = tbl_turma.id
                     inner join tbl_aluno
-                        on tbl_matricula.id_aluno = tbl_aluno.id
+                        on tbl_matricula.id_aluno = tbl_aluno.id,
+                    inner join tbl_turma 
+                        on tbl_matricula.id_turma = tbl_turma.id
                 where tbl_turma.sigla = '${siglaTurma}'`
 
     //$queryRawUnsafe(sql) - Permite interpretar uma variável como sendo um scriptSQL
@@ -90,7 +98,9 @@ const selectMatriculaById = async function (idMatricula) {
 		inner join tbl_curso 
 			on tbl_curso.id = tbl_matricula.id_curso
         inner join tbl_aluno
-			on tbl_aluno.id = tbl_matricula.id_aluno
+			on tbl_aluno.id = tbl_matricula.id_aluno,
+            inner join tbl_turma 
+                on tbl_matricula.id_turma = tbl_turma.id
             where tbl_matricula.id = ${idMatricula};`
 
     let rsMatricula = await prisma.$queryRawUnsafe(sql)
@@ -114,11 +124,13 @@ const insertMatricula = async function (dadosMatricula) {
         let sql = `insert into tbl_matricula (
             numero,
             id_curso,
-            id_aluno
+            id_aluno,
+            id_turma
             ) values (
             ${dadosMatricula.numero},
             ${dadosMatricula.id_curso},
-            ${dadosMatricula.id_aluno}
+            ${dadosMatricula.id_aluno},
+            ${dadosMatricula.id_turma},
             )`
 
         //Sempre que não formos utilizar um select, devemos usar o metodo executeRawUnsafe                        
@@ -152,7 +164,9 @@ const updateMatricula = async function (dadosMatricula) {
 
     let sql = `update tbl_matricula set 
             numero = '${dadosMatricula.numero}',
-            id_aluno = ${dadosMatricula.id_aluno}
+            id_aluno = ${dadosMatricula.id_aluno},
+            id_curso = ${dadosMatricula.id_curso},
+            id_turma = ${dadosMatricula.id_turma},
         where id = ${dadosMatricula.id}
     `
 

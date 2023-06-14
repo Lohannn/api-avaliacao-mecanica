@@ -44,7 +44,7 @@ app.get('/v1/senai/recuperar', cors(), async function (request, response) {
     for (let index = 1; index <= 3; index++) {
         let num = Math.floor(Math.random() * 10);
         password += String(num);
-}
+    }
 
     response.json(password)
     response.status(messages.SUCCESS_REQUEST)
@@ -397,10 +397,20 @@ app.delete('/v1/senai/professor/:id', cors(), async function (request, response)
 
 //Endpoint para retornar todos as turmas.
 app.get('/v1/senai/turmas', cors(), async (request, response) => {
-    let dadosTurma = await controllerTurma.getTurmas()
+    let periodo = request.query.periodo
 
-    response.status(dadosTurma.status)
-    response.json(dadosTurma)
+    if (periodo != undefined) {
+        let dadosTurma = await controllerTurma.getTurmaByPeriodo(periodo)
+
+        response.status(dadosTurma.status)
+        response.json(dadosTurma)
+    } else {
+        let dadosTurma = await controllerTurma.getTurmas()
+
+        response.status(dadosTurma.status)
+        response.json(dadosTurma)
+    }
+
 })
 
 //Endpoint para retornar uma turma pelo ID.

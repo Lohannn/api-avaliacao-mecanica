@@ -14,7 +14,7 @@ var prisma = new PrismaClient()
 const selectAllCriterios = async function () {
 
     //scriptSQL para buscar todos os itens do BD
-    let sql = `select tbl_criterio.id as id, tbl_criterio.descricao as criterio , tbl_criterio.observacao from tbl_criterio`
+    let sql = `select tbl_criterio.id as id, tbl_criterio.descricao as criterio , tbl_criterio.observacao, tbl_criterio.critico from tbl_criterio`
 
     //$queryRawUnsafe(sql) - Permite interpretar uma variável como sendo um scriptSQL
     //$queryRaw('SELECT * FROM tbl_aluno') - Executa diretamente o script dentro do método

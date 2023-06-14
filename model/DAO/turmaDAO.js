@@ -93,6 +93,21 @@ const selectTurmaById = async function (Id) {
     }
 }
 
+const selectTurmaByPeriodo = async function (periodoSigla) {
+    let sql = `SELECT tbl_turma.id, tbl_turma.nome, tbl_turma.sigla, tbl_semestre.nome_semestre as semestre, tbl_periodo.sigla as periodo FROM tbl_turma
+    inner join tbl_semestre on tbl_semestre.idSemestre = tbl_turma.id_semestre
+    inner join tbl_periodo_turma on tbl_periodo_turma.id_turma = tbl_turma.id
+    inner join tbl_periodo on tbl_periodo.idPeriodo = tbl_periodo_turma.id_periodo where tbl_periodo.sigla = '${periodoSigla}'`
+
+    let rsTurma = await prisma.$queryRawUnsafe(sql)
+
+    if (rsTurma.length > 0) {
+        return rsTurma;
+    } else {
+        return false
+    }
+}
+
 const selectLastId = async function () {
     let sql = 'select * from tbl_turma order by id desc limit 1;'
 
@@ -143,5 +158,6 @@ module.exports = {
     selectTurmaById,
     selectLastId,
     updateTurma,
-    deleteTurma
+    deleteTurma,
+    selectTurmaByPeriodo
 }

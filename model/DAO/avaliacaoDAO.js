@@ -57,11 +57,14 @@ const selectAllAvaliacoesByTurma = async function (idTurma) {
 
 const selectByIdAvaliacao = async function (idAvaliacao) {
     let sql = `SELECT tbl_avaliacao.idAvaliacao as id_avaliacao, tbl_avaliacao.nome as nome_avaliacao, 
-    SUM(tbl_verificacao_matricula.confirmacao_professor = 'S') as criticos_acertados, 
-    SUM(tbl_verificacao_matricula.confirmacao_professor = 'S') as desejados_acertados, tbl_avaliacao.somativa, tbl_avaliacao.concluida, 
+    (IFNULL((SELECT (CAST(COUNT(*) as CHAR) + 0) FROM tbl_verificacao_matricula WHERE confirmacao_professor = 'S' AND id_criterio IN (SELECT id FROM tbl_criterio WHERE critico = 1)), 0)) as criticos_acertados, 
+    (IFNULL((SELECT (CAST(COUNT(*) as CHAR) + 0) FROM tbl_verificacao_matricula WHERE confirmacao_professor = 'S' AND id_criterio IN (SELECT id FROM tbl_criterio WHERE critico = 0)), 0)) as desejados_acertados,
+    (SELECT (CAST(COUNT(*) as CHAR) + 0) from tbl_avaliacao where tbl_criterio.critico = 1) as quantidade_criticos,
+    (SELECT (CAST(COUNT(*) as CHAR) + 0) from tbl_avaliacao where tbl_criterio.critico = 0) as quantidade_desejados,
+    tbl_avaliacao.somativa, tbl_avaliacao.concluida, 
     tbl_professor.nome as professor, 
     concat(tbl_turma.nome, " (", tbl_turma.sigla, ")") as turma, 
-    tbl_criterio.id as id_criterio, tbl_criterio.descricao, tbl_criterio.observacao, 
+    tbl_criterio.id as id_criterio, tbl_criterio.critico, tbl_criterio.descricao, tbl_criterio.observacao, 
     tbl_verificacao_matricula.id as resultado_id, tbl_verificacao_matricula.resultado_desejado, tbl_verificacao_matricula.resultado_obtido, tbl_verificacao_matricula.verificacao_aluno, tbl_verificacao_matricula.confirmacao_professor
     from tbl_avaliacao 
         inner join tbl_criterio on tbl_criterio.id_avaliacao = tbl_avaliacao.idAvaliacao
@@ -219,6 +222,26 @@ const insertAvaliacao = async function (dadosAvaliacao) {
     }
 }
 
+const insertIntoTableMatriculaAvaliacao = async function(idMatricula, idAvaliacao){
+    let sql = `insert into tbl_matricula_avaliacao
+    (
+        id_matricula,
+        id_avaliacao
+    ) values (
+        '${idMatricula.id_matricula}',
+        ${idAvaliacao.id_avaliacao}
+    )`
+
+    //Executa o scriptSQL no BD
+    let resultStatus = await prisma.$executeRawUnsafe(sql)
+
+    if (resultStatus) {
+        return true
+    } else {
+        return false
+    }
+}
+
 module.exports = {
     selectAllAvaliacoes,
     selectAllAvaliacoesByTurma,
@@ -227,6 +250,7 @@ module.exports = {
     selectLastIdAvaliacao,
     updateAvaliacao,
     deleteAvaliacao,
-    insertAvaliacao
+    insertAvaliacao,
+    insertIntoTableMatriculaAvaliacao
 }
 
