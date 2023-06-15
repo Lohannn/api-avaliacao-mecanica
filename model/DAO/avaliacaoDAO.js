@@ -70,7 +70,7 @@ const selectAllAvaliacoes = async function () {
                 avaliacao.turma = tarefa.turma
 
                 set.forEach(avaliacaoArray => {
-                    if (avaliacao.id == avaliacaoArray.avaliacao) {
+                    if (tarefa.id_avaliacao == avaliacaoArray.avaliacao) {
                         if (avaliacoesJSON.criterio_id !== avaliacaoArray.id_criterio) {
                             avaliacoesJSON.criterio_id = avaliacaoArray.id_criterio
                             let criterio = {}
@@ -99,6 +99,7 @@ const selectAllAvaliacoes = async function () {
                                         resultado.verificacao_aluno = atividade.verificacao_aluno
                                         resultado.confirmacao_professor = atividade.confirmacao_professor
 
+                                        delete resultado.criterio
                                         resultados.push(resultado)
                                     }
                                 }
@@ -106,16 +107,19 @@ const selectAllAvaliacoes = async function () {
                             criterio.resultados = resultados
                             resultados = []
 
-
+                            delete criterio.avaliacao
                             criterios.push(criterio)
-                            avaliacao.criterios = criterios
+                            
                         }
                     }
+                    avaliacao.criterios = criterios
                 })
 
 
                 avaliacoes.push(avaliacao)
                 avaliacao = {}
+                
+                criterios = []
             }
         });
 
@@ -156,17 +160,20 @@ const selectAllAvaliacoesByTurma = async function (idTurma) {
 
     //Valida se o BD retornou algum registro
     if (rsAvaliacao.length > 0) {
+        let avaliacoesJSON = {}
+        let avaliacoes = []
         let avaliacao = {}
         let criterios = []
         let resultados = []
         let set = Array.from(new Set(rsAvaliacao))
 
-        avaliacao.id = 0
-        avaliacao.criterio_id = 0
-        avaliacao.resultado_id = 0
+        avaliacoesJSON.id = 0
+        avaliacoesJSON.criterio_id = 0
+        avaliacoesJSON.resultado_id = 0
 
         set.forEach(tarefa => {
-            if (avaliacao.id != tarefa.id_avaliacao) {
+            if (avaliacoesJSON.id != tarefa.id_avaliacao) {
+                avaliacoesJSON.id = tarefa.id_avaliacao
                 avaliacao.id = tarefa.id_avaliacao
                 avaliacao.nome = tarefa.nome_avaliacao
                 avaliacao.acertos_criticos = tarefa.criticos_acertados
@@ -183,51 +190,64 @@ const selectAllAvaliacoesByTurma = async function (idTurma) {
                 avaliacao.concluida = tarefa.concluida
                 avaliacao.professor = tarefa.professor
                 avaliacao.turma = tarefa.turma
-            }
 
-            if (avaliacao.criterio_id !== tarefa.id_criterio) {
-                avaliacao.criterio_id = tarefa.id_criterio
-                let criterio = {}
-                criterio.id = tarefa.id_criterio
+                set.forEach(avaliacaoArray => {
+                    if (tarefa.id_avaliacao == avaliacaoArray.avaliacao) {
+                        if (avaliacoesJSON.criterio_id !== avaliacaoArray.id_criterio) {
+                            avaliacoesJSON.criterio_id = avaliacaoArray.id_criterio
+                            let criterio = {}
+                            criterio.avaliacao = avaliacaoArray.avaliacao
+                            criterio.id = avaliacaoArray.id_criterio
 
-                if (tarefa.critico == 1) {
-                    criterio.critico = true
-                } else if (tarefa.critico == 1) {
-                    criterio.critico = false
-                }
+                            if (avaliacaoArray.critico == 1) {
+                                criterio.critico = true
+                            } else if (avaliacaoArray.critico == 1) {
+                                criterio.critico = false
+                            }
 
-                criterio.descricao = tarefa.descricao
-                criterio.observcao = tarefa.observacao
+                            criterio.descricao = avaliacaoArray.descricao
+                            criterio.observcao = avaliacaoArray.observacao
 
-                set.forEach(atividade => {
-                    if (criterio.id == atividade.criterio) {
-                        if (avaliacao.resultado_id != atividade.resultado_id) {
+                            set.forEach(atividade => {
+                                if (criterio.id == atividade.criterio) {
+                                    if (avaliacoesJSON.resultado_id != atividade.resultado_id) {
 
-                            let resultado = {}
-                            avaliacao.resultado_id = atividade.resultado_id
-                            resultado.criterio = atividade.criterio
-                            resultado.id = atividade.resultado_id
-                            resultado.resultado_desejado = atividade.resultado_desejado
-                            resultado.resultado_obtido = atividade.resultado_obtido
-                            resultado.verificacao_aluno = atividade.verificacao_aluno
-                            resultado.confirmacao_professor = atividade.confirmacao_professor
+                                        let resultado = {}
+                                        avaliacoesJSON.resultado_id = atividade.resultado_id
+                                        resultado.criterio = atividade.criterio
+                                        resultado.id = atividade.resultado_id
+                                        resultado.resultado_desejado = atividade.resultado_desejado
+                                        resultado.resultado_obtido = atividade.resultado_obtido
+                                        resultado.verificacao_aluno = atividade.verificacao_aluno
+                                        resultado.confirmacao_professor = atividade.confirmacao_professor
 
-                            resultados.push(resultado)
+                                        delete resultado.criterio
+                                        resultados.push(resultado)
+                                    }
+                                }
+                            })
+                            criterio.resultados = resultados
+                            resultados = []
+
+                            delete criterio.avaliacao
+                            criterios.push(criterio)
+                            
                         }
                     }
+                    avaliacao.criterios = criterios
                 })
-                criterio.resultados = resultados
-                resultados = []
 
 
-                criterios.push(criterio)
+                avaliacoes.push(avaliacao)
+                avaliacao = {}
+                
+                criterios = []
             }
-
-            avaliacao.criterios = criterios
         });
 
-        delete avaliacao.criterio_id
-        delete avaliacao.resultado_id
+        delete avaliacoesJSON.id
+        delete avaliacoesJSON.criterio_id
+        delete avaliacoesJSON.resultado_id
 
         return avaliacao;
     } else {
@@ -368,7 +388,8 @@ const updateAvaliacao = async function (dadosAvaliacao) {
     let sql = `update tbl_avaliacao set 
             nome = '${dadosAvaliacao.nome}',
             id_professor = ${dadosAvaliacao.id_professor},
-            id_turma = ${dadosAvaliacao.id_turma}
+            id_turma = ${dadosAvaliacao.id_turma},
+            concluida = '${dadosAvaliacao.concluida}'
         where idAvaliacao = ${dadosAvaliacao.idAvaliacao}
     `
 
@@ -396,17 +417,19 @@ const deleteAvaliacao = async function (idAvaliacao) {
 }
 
 const insertAvaliacao = async function (dadosAvaliacao) {
-    console.log(dadosAvaliacao.id_professor);
-
     let sql = `insert into tbl_avaliacao 
     (
         nome,
         id_professor,
-        id_turma
+        id_turma,
+        concluida,
+        somativa
     ) values (
         '${dadosAvaliacao.nome}',
         ${dadosAvaliacao.id_professor},
-        ${dadosAvaliacao.id_turma}
+        ${dadosAvaliacao.id_turma},
+        'nao',
+        ${dadosAvaliacao.somativa}
     )`
 
     //Executa o scriptSQL no BD
