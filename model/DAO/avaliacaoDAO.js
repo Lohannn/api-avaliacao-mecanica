@@ -84,7 +84,7 @@ const selectAllAvaliacoes = async function () {
                             }
 
                             criterio.descricao = avaliacaoArray.descricao
-                            criterio.observcao = avaliacaoArray.observacao
+                            criterio.observacao = avaliacaoArray.observacao
 
                             set.forEach(atividade => {
                                 if (criterio.id == atividade.criterio) {
@@ -206,7 +206,7 @@ const selectAllAvaliacoesByTurma = async function (idTurma) {
                             }
 
                             criterio.descricao = avaliacaoArray.descricao
-                            criterio.observcao = avaliacaoArray.observacao
+                            criterio.observacao = avaliacaoArray.observacao
 
                             set.forEach(atividade => {
                                 if (criterio.id == atividade.criterio) {
@@ -320,7 +320,7 @@ const selectByIdAvaliacao = async function (idAvaliacao) {
                 }
 
                 criterio.descricao = tarefa.descricao
-                criterio.observcao = tarefa.observacao
+                criterio.observacao = tarefa.observacao
 
                 set.forEach(atividade => {
                     if (criterio.id == atividade.criterio) {
