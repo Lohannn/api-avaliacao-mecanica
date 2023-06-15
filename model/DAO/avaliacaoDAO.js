@@ -21,7 +21,7 @@ const selectAllAvaliacoes = async function () {
     tbl_avaliacao.somativa, tbl_avaliacao.concluida, 
     tbl_professor.nome as professor, 
     concat(tbl_turma.nome, " (", tbl_turma.sigla, ")") as turma, 
-    tbl_criterio.id as id_criterio, tbl_criterio.critico, tbl_criterio.descricao, tbl_criterio.observacao, 
+    tbl_criterio.id_avaliacao as avaliacao, tbl_criterio.id as id_criterio, tbl_criterio.critico, tbl_criterio.descricao, tbl_criterio.observacao, 
     tbl_verificacao_matricula.id_criterio as criterio, tbl_verificacao_matricula.id as resultado_id, tbl_verificacao_matricula.resultado_desejado, tbl_verificacao_matricula.resultado_obtido, tbl_verificacao_matricula.verificacao_aluno, tbl_verificacao_matricula.confirmacao_professor
     from tbl_avaliacao 
         inner join tbl_criterio on tbl_criterio.id_avaliacao = tbl_avaliacao.idAvaliacao
@@ -68,49 +68,55 @@ const selectAllAvaliacoes = async function () {
                 avaliacao.concluida = tarefa.concluida
                 avaliacao.professor = tarefa.professor
                 avaliacao.turma = tarefa.turma
-            }
 
-            if (avaliacoesJSON.criterio_id !== tarefa.id_criterio) {
-                avaliacoes.criterio_id = tarefa.id_criterio
-                let criterio = {}
-                criterio.id = tarefa.id_criterio
+                set.forEach(avaliacaoArray => {
+                    if (avaliacao.id == avaliacaoArray.avaliacao) {
+                        if (avaliacoesJSON.criterio_id !== avaliacaoArray.id_criterio) {
+                            avaliacoesJSON.criterio_id = avaliacaoArray.id_criterio
+                            let criterio = {}
+                            criterio.avaliacao = avaliacaoArray.avaliacao
+                            criterio.id = avaliacaoArray.id_criterio
 
-                if (tarefa.critico == 1) {
-                    criterio.critico = true
-                } else if (tarefa.critico == 1) {
-                    criterio.critico = false
-                }
+                            if (avaliacaoArray.critico == 1) {
+                                criterio.critico = true
+                            } else if (avaliacaoArray.critico == 1) {
+                                criterio.critico = false
+                            }
 
-                criterio.descricao = tarefa.descricao
-                criterio.observcao = tarefa.observacao
+                            criterio.descricao = avaliacaoArray.descricao
+                            criterio.observcao = avaliacaoArray.observacao
 
-                set.forEach(atividade => {
-                    if (criterio.id == atividade.criterio) {
-                    if (avaliacoes.resultado_id != atividade.resultado_id) {
-                        
-                            let resultado = {}
-                            avaliacoes.resultado_id = atividade.resultado_id
-                            resultado.criterio = atividade.criterio
-                            resultado.id = atividade.resultado_id
-                            resultado.resultado_desejado = atividade.resultado_desejado
-                            resultado.resultado_obtido = atividade.resultado_obtido
-                            resultado.verificacao_aluno = atividade.verificacao_aluno
-                            resultado.confirmacao_professor = atividade.confirmacao_professor
+                            set.forEach(atividade => {
+                                if (criterio.id == atividade.criterio) {
+                                    if (avaliacoesJSON.resultado_id != atividade.resultado_id) {
 
-                            resultados.push(resultado)
+                                        let resultado = {}
+                                        avaliacoesJSON.resultado_id = atividade.resultado_id
+                                        resultado.criterio = atividade.criterio
+                                        resultado.id = atividade.resultado_id
+                                        resultado.resultado_desejado = atividade.resultado_desejado
+                                        resultado.resultado_obtido = atividade.resultado_obtido
+                                        resultado.verificacao_aluno = atividade.verificacao_aluno
+                                        resultado.confirmacao_professor = atividade.confirmacao_professor
+
+                                        resultados.push(resultado)
+                                    }
+                                }
+                            })
+                            criterio.resultados = resultados
+                            resultados = []
+
+
+                            criterios.push(criterio)
+                            avaliacao.criterios = criterios
                         }
                     }
                 })
-                criterio.resultados = resultados
-                resultados = []
 
 
-                criterios.push(criterio)
+                avaliacoes.push(avaliacao)
+                avaliacao = {}
             }
-
-            avaliacao.criterios = criterios
-
-            avaliacoes.push(avaliacao)
         });
 
         delete avaliacoesJSON.id
@@ -195,8 +201,8 @@ const selectAllAvaliacoesByTurma = async function (idTurma) {
 
                 set.forEach(atividade => {
                     if (criterio.id == atividade.criterio) {
-                    if (avaliacao.resultado_id != atividade.resultado_id) {
-                        
+                        if (avaliacao.resultado_id != atividade.resultado_id) {
+
                             let resultado = {}
                             avaliacao.resultado_id = atividade.resultado_id
                             resultado.criterio = atividade.criterio
@@ -298,8 +304,8 @@ const selectByIdAvaliacao = async function (idAvaliacao) {
 
                 set.forEach(atividade => {
                     if (criterio.id == atividade.criterio) {
-                    if (avaliacao.resultado_id != atividade.resultado_id) {
-                        
+                        if (avaliacao.resultado_id != atividade.resultado_id) {
+
                             let resultado = {}
                             avaliacao.resultado_id = atividade.resultado_id
                             resultado.criterio = atividade.criterio
