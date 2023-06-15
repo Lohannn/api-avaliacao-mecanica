@@ -92,7 +92,7 @@ app.get('/v1/senai/matriculas', cors(), async (request, response) => {
     let matricula = request.query.matricula
     let turma = request.query.turma
     let semestre = request.query.semestre
-    let nome = request.query.nome
+    let nome = request.query.nome.replace(/_/g, ' ')
 
     if (matricula != undefined) {
         //Recebe os dados do controller
