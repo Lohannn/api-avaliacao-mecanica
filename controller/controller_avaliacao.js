@@ -197,16 +197,26 @@ const deletarAvaliacao = async function (id) {
     }
 }
 
-// const sendAvaliacaoParaAlunos = async function(id_matricula, id_avaliacao, dadosAvaliacao){
-    
+const getMatriculaAvaliacao = async function(numeroMatricula){
+    if(numeroMatricula == null || numeroMatricula == undefined || numeroMatricula == ''){
+        return messages.ERROR_INVALID_ID
+    } else {
+        let dadosMatriculaAvaliacaoJSON = {}
 
-//     let checkInsertAvaliacao = await inserirNovaAvaliacao(dadosAvaliacao)
+        //chama a função do arquivo DAO que irá retornar todos os registros do BD
+        let dadosMatriculaAvaliacao = await avaliacaoDAO.selectMatriculaAvaliacao(numeroMatricula)
 
-//     if (checkInsertAvaliacao){
-//         let checkLastIdAvaliacao = avaliacaoDAO.selectLastIdAvaliacao()
-//     }
-
-// }
+        if (dadosMatriculaAvaliacao) {
+            //Criando um JSON com o atributo Alunos para encaminhar um Array de alunos
+            dadosMatriculaAvaliacaoJSON.status = messages.SUCCESS_REQUEST.status
+            dadosMatriculaAvaliacaoJSON.quantidade = dadosMatriculaAvaliacao.length
+            dadosMatriculaAvaliacaoJSON.avaliacaoDisponivel = dadosMatriculaAvaliacao
+            return dadosMatriculaAvaliacaoJSON
+        } else {
+            return messages.ERROR_INTERNAL_SERVER
+        }
+    }
+}
 
 
 module.exports = {
@@ -216,5 +226,6 @@ module.exports = {
     getAvaliacaoPeloNome,
     inserirNovaAvaliacao,
     atualizarAvaliacao,
-    deletarAvaliacao
+    deletarAvaliacao,
+    getMatriculaAvaliacao
 }

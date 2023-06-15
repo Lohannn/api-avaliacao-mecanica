@@ -769,16 +769,21 @@ app.delete('/v1/senai/periodo/:id', cors(), async function (request, response) {
 
 //Endpoint para retornar todos as Avaliações.
 app.get('/v1/senai/avaliacoes', cors(), async (request, response) => {
-
     let nome = request.query.nome;
     let idturma = request.query.turma;
+    let matricula = request.query.matricula;
 
-    if (nome != undefined) {
+    if (matricula != undefined) {
+        let dadosAvaliacao = await controllerAvaliacao.getMatriculaAvaliacao(matricula)
+
+        response.status(dadosAvaliacao.status)
+        response.json(dadosAvaliacao)
+    } else if (nome != undefined) {
         let dadosAvaliacao = await controllerAvaliacao.getAvaliacaoPeloNome(nome)
 
         response.status(dadosAvaliacao.status)
         response.json(dadosAvaliacao)
-    } if (idturma != undefined) {
+    } else if (idturma != undefined) { // Added else here
         let dadosAvaliacao = await controllerAvaliacao.getAvaliacoesPelaTurma(idturma)
 
         response.status(dadosAvaliacao.status)
@@ -789,9 +794,8 @@ app.get('/v1/senai/avaliacoes', cors(), async (request, response) => {
         response.status(dadosAvaliacao.status)
         response.json(dadosAvaliacao)
     }
-
-
 })
+
 
 //Endpoint para retornar uma Avaliação pelo ID.
 app.get('/v1/senai/avaliacao/:id', cors(), async (request, response) => {

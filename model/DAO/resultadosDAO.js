@@ -88,8 +88,7 @@ const updateResultado = async function (dadosResultado, id_resultado) {
     resultado_desejado = '${dadosResultado.resultado_desejado}',
     resultado_obtido = '${dadosResultado.resultado_obtido}',
     verificacao_aluno = '${dadosResultado.verificacao_aluno}',
-    confirmacao_professor = '${dadosResultado.confirmacao_professor}',
-    id_criterio = '${dadosResultado.id_criterio}'
+    confirmacao_professor = '${dadosResultado.confirmacao_professor}'
         where id = ${id_resultado}
     `
 

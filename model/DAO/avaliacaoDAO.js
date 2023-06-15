@@ -33,9 +33,6 @@ const selectAllAvaliacoes = async function () {
     //$queryRawUnsafe(sql) - Permite interpretar uma variável como sendo um scriptSQL
     //$queryRaw('SELECT * FROM tbl_aluno') - Executa diretamente o script dentro do método
     let rsAvaliacao = await prisma.$queryRawUnsafe(sql)
-
-    console.log(rsAvaliacao);
-
     //Valida se o BD retornou algum registro
     if (rsAvaliacao.length > 0) {
         let avaliacoesJSON = {}
@@ -462,6 +459,37 @@ const insertIntoTableMatriculaAvaliacao = async function (idMatricula, idAvaliac
     }
 }
 
+const selectMatriculaAvaliacao = async function (numeroMatricula) {
+
+    console.log(numeroMatricula);
+
+    let sql = `select tbl_aluno.nome as aluno,
+    tbl_turma.nome as turma,
+    tbl_avaliacao.nome as avaliacao_nova,
+    tbl_matricula.numero as matricula
+        from tbl_matricula_avaliacao
+            inner join tbl_matricula
+                on tbl_matricula_avaliacao.id_matricula = tbl_matricula.id
+            inner join tbl_avaliacao
+                on tbl_matricula_avaliacao.id_avaliacao = tbl_avaliacao.idAvaliacao
+            inner join tbl_aluno
+                on tbl_matricula.id_aluno = tbl_aluno.id
+            inner join tbl_turma 
+                on tbl_matricula.id_turma = tbl_turma.id
+            inner join tbl_curso
+                on tbl_matricula.id_curso = tbl_curso.id
+                where tbl_matricula.numero = '${numeroMatricula}' and tbl_avaliacao.concluida = 'Nao';`
+
+    //Executa o scriptSQL no BD
+    let resultStatus = await prisma.$queryRawUnsafe(sql)
+
+    if (resultStatus.length > 0) {
+        return resultStatus
+    } else {
+        return false
+    }
+}
+
 module.exports = {
     selectAllAvaliacoes,
     selectAllAvaliacoesByTurma,
@@ -471,6 +499,7 @@ module.exports = {
     updateAvaliacao,
     deleteAvaliacao,
     insertAvaliacao,
-    insertIntoTableMatriculaAvaliacao
+    insertIntoTableMatriculaAvaliacao,
+    selectMatriculaAvaliacao
 }
 
