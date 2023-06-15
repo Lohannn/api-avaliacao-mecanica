@@ -92,10 +92,18 @@ app.get('/v1/senai/matriculas', cors(), async (request, response) => {
     let matricula = request.query.matricula
     let turma = request.query.turma
     let semestre = request.query.semestre
+    let nome = request.query.nome
 
     if (matricula != undefined) {
         //Recebe os dados do controller
         let dadosMatricula = await controllerMatricula.getMatriculaByNumber(matricula);
+
+        //Valida se existe registro
+        response.json(dadosMatricula)
+        response.status(dadosMatricula.status)
+    } else if (turma != undefined && semestre != undefined && nome != undefined) {
+        //Recebe os dados do controller
+        let dadosMatricula = await controllerMatricula.getMatriculaByTurmaAndName(turma, semestre, nome);
 
         //Valida se existe registro
         response.json(dadosMatricula)

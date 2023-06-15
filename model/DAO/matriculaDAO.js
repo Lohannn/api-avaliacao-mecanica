@@ -92,6 +92,34 @@ const selectMatriculaByTurma = async function (siglaTurma, semestre) {
 
 }
 
+const selectMatriculaByTurmaAndName = async function (siglaTurma, semestre, nomeAluno) {
+
+    //scriptSQL para buscar todos os itens do BD
+    let sql = `select tbl_matricula.id, tbl_matricula.numero as matricula, 
+    tbl_aluno.nome as aluno, tbl_aluno.email,
+    tbl_turma.nome as turma, tbl_turma.sigla as sigla_turma
+                from tbl_matricula
+                    inner join tbl_turma
+                        on tbl_matricula.id_turma = tbl_turma.id
+                    inner join tbl_aluno
+                        on tbl_matricula.id_aluno = tbl_aluno.id
+                    inner join tbl_semestre
+                        on tbl_semestre.idSemestre = tbl_turma.id_semestre
+                where tbl_turma.sigla = '${siglaTurma}' and tbl_semestre.nome_semestre = '${semestre}' and tbl_aluno.nome like '${nomeAluno}'`
+
+    //$queryRawUnsafe(sql) - Permite interpretar uma variável como sendo um scriptSQL
+    //$queryRaw('SELECT * FROM tbl_aluno') - Executa diretamente o script dentro do método
+    let rsMatricula = await prisma.$queryRawUnsafe(sql)
+
+    //Valida se o BD retornou algum registro
+    if (rsMatricula.length > 0) {
+        return rsMatricula
+    } else {
+        return false
+    }
+
+}
+
 const selectMatriculaById = async function (idMatricula) {
     let sql = `SELECT tbl_matricula.numero as matricula , tbl_curso.nome_curso as curso , tbl_aluno.nome as aluno
 	from tbl_matricula
@@ -212,5 +240,6 @@ module.exports = {
     insertMatricula,
     updateMatricula,
     selectLastId,
-    selectMatriculaByTurma
+    selectMatriculaByTurma,
+    selectMatriculaByTurmaAndName
 }

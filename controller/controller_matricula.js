@@ -63,6 +63,23 @@ const getMatriculaByTurma = async function (siglaTurma, semestre) {
     }
 }
 
+const getMatriculaByTurmaAndName = async function (siglaTurma, semestre, nomeAluno) {
+    let dadosMatriculasJSON = {}
+
+    //chama a função do arquivo DAO que irá retornar todos os registros do BD
+    let dadosMatricula = await matriculaDAO.selectMatriculaByTurmaAndName(siglaTurma, semestre, nomeAluno)
+
+    if (dadosMatricula) {
+        //Criando um JSON com o atributo Alunos para encaminhar um Array de alunos
+        dadosMatriculasJSON.status = messages.SUCCESS_REQUEST.status
+        dadosMatriculasJSON.quantidade = dadosMatricula.length
+        dadosMatriculasJSON.matricula = dadosMatricula
+        return dadosMatriculasJSON
+    } else {
+        return messages.ERROR_NOT_FOUND
+    }
+}
+
 //Função que retorna um aluno pelo ID.
 const getMatriculaById = async function (id) {
     if (id == '' || isNaN(id) || id == undefined) {
@@ -184,6 +201,7 @@ module.exports = {
     getMatriculaById,
     getMatriculaByNumber,
     inserirNovaMatricula,
-    getMatriculaByTurma
+    getMatriculaByTurma,
+    getMatriculaByTurmaAndName
 }
 
