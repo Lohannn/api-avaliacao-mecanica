@@ -46,11 +46,11 @@ const getMatriculaByNumber = async function (rm) {
     }
 }
 
-const getMatriculaByTurma = async function (siglaTurma) {
+const getMatriculaByTurma = async function (siglaTurma, semestre) {
     let dadosMatriculasJSON = {}
 
     //chama a função do arquivo DAO que irá retornar todos os registros do BD
-    let dadosMatricula = await matriculaDAO.selectMatriculaByTurma(siglaTurma)
+    let dadosMatricula = await matriculaDAO.selectMatriculaByTurma(siglaTurma, semestre)
 
     if (dadosMatricula) {
         //Criando um JSON com o atributo Alunos para encaminhar um Array de alunos

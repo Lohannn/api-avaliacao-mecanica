@@ -77,7 +77,7 @@ const selectMatriculaByTurma = async function (siglaTurma, semestre) {
                         on tbl_matricula.id_aluno = tbl_aluno.id
                     inner join tbl_semestre
                         on tbl_semestre.idSemestre = tbl_turma.id_semestre
-                where tbl_turma.sigla = '${siglaTurma}' and `
+                where tbl_turma.sigla = '${siglaTurma}' and tbl_semestre.nome_semestre = '${semestre}'`
 
     //$queryRawUnsafe(sql) - Permite interpretar uma variável como sendo um scriptSQL
     //$queryRaw('SELECT * FROM tbl_aluno') - Executa diretamente o script dentro do método

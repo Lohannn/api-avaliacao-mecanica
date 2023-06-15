@@ -77,6 +77,7 @@ const selectAllAvaliacoes = async function () {
                 resultado.confirmacao_professor = tarefa.confirmacao_professor
 
                 resultados.push(resultado)
+                resultado = {}
             }
 
             if (avaliacao.criterio_id !== tarefa.id_criterio) {
@@ -95,6 +96,7 @@ const selectAllAvaliacoes = async function () {
                 criterio.resultados = resultados
 
                 criterios.push(criterio)
+                criterio = {}
             }
             avaliacao.criterios = criterios
         });
