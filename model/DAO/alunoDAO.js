@@ -151,7 +151,7 @@ const deleteAluno = async function (id) {
 }
 
 const selectAlunoByEmailAndSenha = async function (email, senha) {
-    let sql = `select tbl_aluno.id, tbl_aluno.nome as nome, tbl_matricula.numero as matricula
+    let sql = `select tbl_aluno.id, tbl_aluno.nome as nome, tbl_matricula.numero as matricula, tbl_aluno.email as email, tbl_aluno.senha_email as senha_email
      from tbl_aluno
         inner join tbl_matricula on tbl_aluno.id = tbl_matricula.id_aluno
       where email = '${email}' and BINARY senha_email like '${senha}'`
