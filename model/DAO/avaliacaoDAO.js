@@ -465,7 +465,7 @@ const selectMatriculaAvaliacao = async function (numeroMatricula) {
 
     let sql = `select tbl_aluno.nome as aluno,
     tbl_turma.nome as turma,
-    tbl_avaliacao.nome as avaliacao_nova,
+    tbl_avaliacao.nome as avaliacao_nova, tbl_avaliacao.idAvaliacao,
     tbl_matricula.numero as matricula
         from tbl_matricula_avaliacao
             inner join tbl_matricula
