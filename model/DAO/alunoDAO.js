@@ -151,7 +151,10 @@ const deleteAluno = async function (id) {
 }
 
 const selectAlunoByEmailAndSenha = async function (email, senha) {
-    let sql = `select * from tbl_aluno where email = '${email}' and BINARY senha_email like '${senha}'`
+    let sql = `select tbl_aluno.id, tbl_aluno.nome as nome, tbl_matricula.numero as matricula
+     from tbl_aluno
+        inner join tbl_matricula on tbl_aluno.id = tbl_matricula.id_aluno
+      where email = '${email}' and BINARY senha_email like '${senha}'`
 
     let rsAluno = await prisma.$queryRawUnsafe(sql)
 
